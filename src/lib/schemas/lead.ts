@@ -71,7 +71,14 @@ export const publicLeadSchema = z.object({
   website: z.string().max(0).optional().or(z.literal("")),
 });
 
-export type PublicLeadInput = z.infer<typeof publicLeadSchema>;
+/**
+ * Two types, because `z.coerce` means what a form holds is not what the schema
+ * produces: `quantity` is a string in the input the user types and a number
+ * once parsed. React Hook Form models this with separate input/output generics,
+ * so both are exported rather than collapsing them with z.infer.
+ */
+export type PublicLeadValues = z.input<typeof publicLeadSchema>;
+export type PublicLeadInput = z.output<typeof publicLeadSchema>;
 
 /* -------------------------------------------------------------------------- */
 /*  Authenticated mutations                                                    */

@@ -4,12 +4,40 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ===========================================================================
+   Portside design system — "harbourmaster's ledger"
+   ---------------------------------------------------------------------------
+   A sales team lives in this screen all day, so the surface is warm paper
+   rather than clinical white, the chrome is deep harbour navy, and brass is
+   spent sparingly on the things that actually want a click.
+
+   Type: Fraunces for display (optical sizing + wonk, letterpress signage),
+   IBM Plex Sans for reading, IBM Plex Mono for anything a person might need to
+   compare down a column — values, quantities, ids, timestamps.
+   =========================================================================== */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-fraunces);
+
+  /* Pipeline + status semantics, defined once and consumed everywhere. */
+  --color-status-new: var(--status-new);
+  --color-status-contacted: var(--status-contacted);
+  --color-status-qualified: var(--status-qualified);
+  --color-status-proposal: var(--status-proposal);
+  --color-status-won: var(--status-won);
+  --color-status-lost: var(--status-lost);
+
+  --color-brass: var(--brass);
+  --color-brass-foreground: var(--brass-foreground);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-rule: var(--rule);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -18,11 +46,11 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -39,92 +67,210 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Instrument, not app: tight radii read as precision. */
+  --radius: 0.4rem;
+
+  --paper: oklch(0.976 0.008 85);
+  --ink: oklch(0.235 0.032 250);
+  --rule: oklch(0.885 0.012 85);
+  --brass: oklch(0.688 0.118 74);
+  --brass-foreground: oklch(0.2 0.03 250);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  --card: oklch(0.995 0.004 85);
+  --card-foreground: var(--ink);
+  --popover: oklch(0.995 0.004 85);
+  --popover-foreground: var(--ink);
+
+  --primary: oklch(0.28 0.045 250);
+  --primary-foreground: oklch(0.98 0.008 85);
+
+  --secondary: oklch(0.945 0.012 85);
+  --secondary-foreground: oklch(0.32 0.04 250);
+
+  --muted: oklch(0.945 0.012 85);
+  --muted-foreground: oklch(0.505 0.022 255);
+
+  --accent: oklch(0.928 0.022 80);
+  --accent-foreground: oklch(0.3 0.04 250);
+
+  --destructive: oklch(0.545 0.155 30);
+
+  --border: var(--rule);
+  --input: oklch(0.9 0.012 85);
+  --ring: var(--brass);
+
+  /* Pipeline. Cool -> warm as a lead heats up; won is sea-glass, lost is rust. */
+  --status-new: oklch(0.55 0.045 250);
+  --status-contacted: oklch(0.58 0.075 235);
+  --status-qualified: oklch(0.6 0.085 205);
+  --status-proposal: oklch(0.66 0.115 75);
+  --status-won: oklch(0.56 0.098 175);
+  --status-lost: oklch(0.55 0.128 32);
+
+  --chart-1: var(--status-new);
+  --chart-2: var(--status-contacted);
+  --chart-3: var(--status-qualified);
+  --chart-4: var(--status-proposal);
+  --chart-5: var(--status-won);
+
+  /* Chrome stays navy in both themes — it is the frame around the paper. */
+  --sidebar: oklch(0.215 0.036 250);
+  --sidebar-foreground: oklch(0.885 0.014 85);
+  --sidebar-primary: var(--brass);
+  --sidebar-primary-foreground: oklch(0.2 0.03 250);
+  --sidebar-accent: oklch(0.275 0.04 250);
+  --sidebar-accent-foreground: oklch(0.96 0.01 85);
+  --sidebar-border: oklch(0.32 0.035 250);
+  --sidebar-ring: var(--brass);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --paper: oklch(0.185 0.028 250);
+  --ink: oklch(0.925 0.012 85);
+  --rule: oklch(0.31 0.03 250);
+  --brass: oklch(0.755 0.125 76);
+  --brass-foreground: oklch(0.18 0.028 250);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  --card: oklch(0.222 0.03 250);
+  --card-foreground: var(--ink);
+  --popover: oklch(0.235 0.032 250);
+  --popover-foreground: var(--ink);
+
+  --primary: oklch(0.9 0.015 85);
+  --primary-foreground: oklch(0.2 0.03 250);
+
+  --secondary: oklch(0.268 0.03 250);
+  --secondary-foreground: oklch(0.92 0.012 85);
+
+  --muted: oklch(0.262 0.028 250);
+  --muted-foreground: oklch(0.685 0.02 255);
+
+  --accent: oklch(0.295 0.038 250);
+  --accent-foreground: oklch(0.94 0.012 85);
+
+  --destructive: oklch(0.665 0.16 30);
+
+  --border: var(--rule);
+  --input: oklch(0.33 0.03 250);
+  --ring: var(--brass);
+
+  --status-new: oklch(0.7 0.045 250);
+  --status-contacted: oklch(0.72 0.08 235);
+  --status-qualified: oklch(0.74 0.09 200);
+  --status-proposal: oklch(0.78 0.115 78);
+  --status-won: oklch(0.72 0.1 175);
+  --status-lost: oklch(0.68 0.13 33);
+
+  --sidebar: oklch(0.155 0.026 250);
+  --sidebar-foreground: oklch(0.87 0.014 85);
+  --sidebar-accent: oklch(0.235 0.032 250);
+  --sidebar-accent-foreground: oklch(0.95 0.01 85);
+  --sidebar-border: oklch(0.28 0.03 250);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    @apply font-sans;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
-  html {
-    @apply font-sans;
+
+  /* Numbers in a table must line up to be scannable down a column. */
+  table,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
+  }
+
+  ::selection {
+    background: var(--brass);
+    color: var(--brass-foreground);
+  }
+
+  /* Motion is a garnish. Anyone who has asked for less gets none. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* A hairline that reads as a ruled ledger line rather than a UI divider. */
+  .rule-hairline {
+    background-image: linear-gradient(
+      to right,
+      transparent,
+      var(--rule) 12%,
+      var(--rule) 88%,
+      transparent
+    );
+    height: 1px;
+  }
+
+  /* Small-caps label used above data, like a form field on a manifest. */
+  .label-manifest {
+    @apply font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground;
+  }
+
+  /* Paper tooth. Very low contrast — felt, not seen. */
+  .paper-grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+  }
+
+  .dark .paper-grain::before {
+    mix-blend-mode: screen;
+    opacity: 0.16;
+  }
+
+  /* Faint chart-paper grid for the marketing hero. */
+  .chart-grid {
+    background-image:
+      linear-gradient(var(--sidebar-border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--sidebar-border) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: center;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 40%, #000 20%, transparent 78%);
   }
 }
