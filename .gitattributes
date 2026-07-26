@@ -1,0 +1,21 @@
+# Normalise line endings so the repo is identical for a reviewer on macOS or
+# Linux. Without this, files authored on Windows land in the diff as
+# whole-file changes.
+* text=auto eol=lf
+
+# Binary — never touch these.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+*.pdf   binary
+
+# Keep generated lockfiles out of diff review noise.
+package-lock.json linguist-generated=true
+
+# GitHub language stats: this is a TypeScript project, not an SQL one.
+supabase/migrations/*.sql linguist-detectable=true
