@@ -19,6 +19,21 @@ const signInSchema = z.object({
 
 type SignInValues = z.infer<typeof signInSchema>;
 
+const DEMO_PASSWORD = "PortsideDemo!2026";
+
+/**
+ * `?demo=admin` prefills the form from the credentials panel.
+ *
+ * Present because a password manager autofilling a saved credential over the
+ * demo one is an easy way for a reviewer to conclude the app is broken when it
+ * is not. One click removes that whole class of problem.
+ */
+const DEMO_ACCOUNTS: Record<string, string> = {
+  admin: "admin@portside.demo",
+  priya: "priya@portside.demo",
+  rahul: "rahul@portside.demo",
+};
+
 /**
  * Sign-in.
  *
@@ -32,13 +47,21 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [formError, setFormError] = useState<string | null>(null);
 
+  const demoEmail = DEMO_ACCOUNTS[searchParams.get("demo") ?? ""];
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
-    defaultValues: { email: "", password: "" },
+    // The page keys this component on ?demo=, so picking a different account
+    // remounts the form and these apply again. Using RHF's `values` prop
+    // instead would make the inputs fully controlled and reset them on every
+    // keystroke.
+    defaultValues: demoEmail
+      ? { email: demoEmail, password: DEMO_PASSWORD }
+      : { email: "", password: "" },
   });
 
   async function onSubmit(values: SignInValues) {

@@ -19,23 +19,32 @@ export const metadata = { title: "Sign in" };
 
 const DEMO_ACCOUNTS = [
   {
+    key: "admin",
     role: "Admin",
     email: "admin@portside.demo",
-    note: "Sees all 36 leads, assigns work, opens Team.",
+    note: "Sees every lead, assigns work, opens Team.",
   },
   {
+    key: "priya",
     role: "Member",
     email: "priya@portside.demo",
     note: "Sees only leads assigned to her.",
   },
   {
+    key: "rahul",
     role: "Member",
     email: "rahul@portside.demo",
     note: "Try opening one of Priya's leads — you will get a 404.",
   },
-];
+] as const;
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ demo?: string }>;
+}) {
+  const { demo } = await searchParams;
+
   return (
     <div className="flex min-h-dvh flex-col">
       <div className="grid flex-1 lg:grid-cols-2">
@@ -56,27 +65,38 @@ export default function LoginPage() {
             <p className="label-manifest text-brass">Demo accounts</p>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-sidebar-foreground/70">
               Three sign-ins so the permission model can be checked by hand
-              rather than taken on trust.
+              rather than taken on trust. Pick one to fill the form.
             </p>
 
-            <dl className="mt-8 space-y-0">
+            {/*
+              Links rather than buttons: selecting an account puts ?demo= in the
+              URL and the form reads it. That keeps the panel a Server Component,
+              needs no state lifted across the split layout, and sidesteps the
+              real problem this solves — a password manager silently autofilling
+              a saved credential over the demo one.
+            */}
+            <ul className="mt-8">
               {DEMO_ACCOUNTS.map((account) => (
-                <div
-                  key={account.email}
-                  className="border-t border-sidebar-border/60 py-4"
-                >
-                  <dt className="flex items-baseline gap-3">
-                    <span className="label-manifest w-14 shrink-0 text-brass/80">
-                      {account.role}
+                <li key={account.email} className="border-t border-sidebar-border/60">
+                  <Link
+                    href={`/login?demo=${account.key}`}
+                    className="group block py-4 transition-colors hover:bg-sidebar-accent/40 focus-visible:ring-2 focus-visible:ring-brass focus-visible:outline-none"
+                  >
+                    <span className="flex items-baseline gap-3">
+                      <span className="label-manifest w-14 shrink-0 text-brass/80">
+                        {account.role}
+                      </span>
+                      <span className="font-mono text-sm group-hover:text-brass">
+                        {account.email}
+                      </span>
                     </span>
-                    <span className="font-mono text-sm">{account.email}</span>
-                  </dt>
-                  <dd className="mt-1 pl-[4.25rem] text-xs text-sidebar-foreground/55">
-                    {account.note}
-                  </dd>
-                </div>
+                    <span className="mt-1 block pl-[4.25rem] text-xs text-sidebar-foreground/55">
+                      {account.note}
+                    </span>
+                  </Link>
+                </li>
               ))}
-            </dl>
+            </ul>
 
             <p className="mt-6 border-t border-sidebar-border/60 pt-4 text-xs text-sidebar-foreground/55">
               Password for all three:{" "}
@@ -124,7 +144,9 @@ export default function LoginPage() {
             */}
             <div className="mt-8">
               <Suspense fallback={<LoginFormSkeleton />}>
-                <LoginForm />
+                {/* Keyed so picking a different demo account remounts the
+                    form and its defaultValues apply again. */}
+                <LoginForm key={demo ?? "blank"} />
               </Suspense>
             </div>
           </div>
