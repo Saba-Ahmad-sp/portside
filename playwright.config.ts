@@ -3,7 +3,12 @@ import { config } from "dotenv";
 
 config({ path: ".env.local", quiet: true });
 
-const BASE_URL = process.env.TEST_BASE_URL ?? "http://localhost:3001";
+/**
+ * Matches the port `npm run dev` binds to. Pinned explicitly rather than left
+ * to Next's "port in use, trying the next one" fallback, which would silently
+ * move the app out from under the tests.
+ */
+const BASE_URL = process.env.TEST_BASE_URL ?? "http://localhost:3100";
 
 /**
  * Playwright covers what the integration tests cannot: that a real person, in a

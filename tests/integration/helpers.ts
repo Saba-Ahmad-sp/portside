@@ -15,7 +15,8 @@ config({ path: ".env.local", quiet: true });
  * authenticate at all is itself proof the API is usable outside a browser.
  */
 
-export const BASE_URL = process.env.TEST_BASE_URL ?? "http://localhost:3001";
+/** Matches `npm run dev`. CI overrides this with TEST_BASE_URL. */
+export const BASE_URL = process.env.TEST_BASE_URL ?? "http://localhost:3100";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
