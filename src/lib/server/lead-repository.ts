@@ -32,7 +32,7 @@ import type {
 
 const LEAD_COLUMNS = `
   id, full_name, email, phone, company, country,
-  product_interest, quantity, est_value_usd, message,
+  product_interest, quantity, est_value_inr, message,
   source, status, created_at, updated_at,
   assignee:profiles!leads_assigned_to_fkey ( id, full_name ),
   creator:profiles!leads_created_by_fkey  ( id, full_name )
@@ -49,7 +49,7 @@ type LeadRow = {
   country: string;
   product_interest: string | null;
   quantity: number | null;
-  est_value_usd: number | string | null;
+  est_value_inr: number | string | null;
   message: string | null;
   source: LeadDTO["source"];
   status: LeadDTO["status"];
@@ -76,7 +76,7 @@ function toListItem(row: LeadRow): LeadListItemDTO {
     status: row.status,
     source: row.source,
     productInterest: row.product_interest,
-    estValueUsd: toNumber(row.est_value_usd),
+    estValueInr: toNumber(row.est_value_inr),
     assignee: toActor(row.assignee),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -235,7 +235,7 @@ export async function updateLead(
 export async function leadStats(
   db: SupabaseClient,
   opts: { restrictToAssignee?: string } = {},
-): Promise<{ byStatus: Record<LeadDTO["status"], number>; openValueUsd: number }> {
+): Promise<{ byStatus: Record<LeadDTO["status"], number>; openValueInr: number }> {
   const statuses: LeadDTO["status"][] = [
     "new",
     "contacted",
@@ -269,7 +269,7 @@ export async function leadStats(
   // Value still in play — everything that is neither won nor lost.
   let openQuery = db
     .from("leads")
-    .select("est_value_usd")
+    .select("est_value_inr")
     .not("status", "in", "(won,lost)");
   if (opts.restrictToAssignee) {
     openQuery = openQuery.eq("assigned_to", opts.restrictToAssignee);
@@ -278,14 +278,14 @@ export async function leadStats(
   const { data: openRows, error: openError } = await openQuery;
   if (openError) throw new ApiError(500, "INTERNAL", openError.message);
 
-  const openValueUsd = (openRows ?? []).reduce(
-    (sum, row) => sum + (toNumber(row.est_value_usd) ?? 0),
+  const openValueInr = (openRows ?? []).reduce(
+    (sum, row) => sum + (toNumber(row.est_value_inr) ?? 0),
     0,
   );
 
   return {
     byStatus: Object.fromEntries(counts) as Record<LeadDTO["status"], number>,
-    openValueUsd,
+    openValueInr,
   };
 }
 

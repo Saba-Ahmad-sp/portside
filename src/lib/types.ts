@@ -45,7 +45,7 @@ export type LeadListItemDTO = {
   status: LeadStatus;
   source: LeadSource;
   productInterest: string | null;
-  estValueUsd: number | null;
+  estValueInr: number | null;
   assignee: ActorDTO;
   createdAt: string;
   updatedAt: string;

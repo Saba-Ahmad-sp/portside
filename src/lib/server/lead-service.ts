@@ -304,7 +304,7 @@ function toColumns(patch: LeadUpdateInput): Record<string, unknown> {
     country: "country",
     productInterest: "product_interest",
     quantity: "quantity",
-    estValueUsd: "est_value_usd",
+    estValueInr: "est_value_inr",
     message: "message",
     status: "status",
   };

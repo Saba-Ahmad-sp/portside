@@ -94,7 +94,7 @@ export const leadUpdateSchema = z
     country: z.string().trim().min(2).max(80),
     productInterest: z.string().trim().max(200).nullable(),
     quantity: z.coerce.number().int().positive().max(100_000_000).nullable(),
-    estValueUsd: z.coerce.number().nonnegative().max(1_000_000_000).nullable(),
+    estValueInr: z.coerce.number().nonnegative().max(1_000_000_000).nullable(),
     message: z.string().trim().max(2000).nullable(),
     status: z.enum(LEAD_STATUSES),
   })

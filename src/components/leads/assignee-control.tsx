@@ -1,6 +1,9 @@
 "use client";
 
-import { Loader2, UserRound } from "lucide-react";
+import { useState } from "react";
+import { Loader2, UserRound, UserRoundCheck, UserRoundX } from "lucide-react";
+
+import { ConfirmAction } from "@/components/shared/confirm-action";
 
 import {
   Select,
@@ -40,6 +43,9 @@ export function AssigneeControl({
   const mayAssign = can(viewer, "lead:assign");
   const assign = useAssignLead(leadId);
 
+  /** The choice made in the select, held until it is confirmed. */
+  const [pending, setPending] = useState<string | null>(null);
+
   // Only fetch the directory if this viewer is allowed to have it.
   const { data: fetchedMembers } = useMembers(mayAssign, members);
   const options = fetchedMembers ?? members;
@@ -59,6 +65,13 @@ export function AssigneeControl({
   const admins = options.filter((member) => member.role === "admin");
   const staff = options.filter((member) => member.role === "member");
 
+  const pendingMember = pending && pending !== UNASSIGNED
+    ? options.find((member) => member.id === pending)
+    : null;
+
+  const currentName = assignee?.fullName ?? null;
+  const nextName = pendingMember?.fullName ?? null;
+
   return (
     <div>
       <label htmlFor="assignee" className="label-manifest">
@@ -68,9 +81,11 @@ export function AssigneeControl({
         <Select
           value={assignee?.id ?? UNASSIGNED}
           disabled={assign.isPending}
-          onValueChange={(value) =>
-            assign.mutate(value === UNASSIGNED ? null : value)
-          }
+          // Stage the choice rather than applying it. Reassigning takes work
+          // off someone's desk and they are not in the room to be asked, so it
+          // is worth a beat — and because the trigger's label is driven by the
+          // saved assignee, the select does not visually lie in the meantime.
+          onValueChange={(value) => setPending(value)}
         >
           <SelectTrigger id="assignee" className="h-9 w-full bg-card text-sm">
             {/*
@@ -111,6 +126,55 @@ export function AssigneeControl({
           />
         )}
       </div>
+
+      <ConfirmAction
+        open={pending !== null}
+        onOpenChange={(next) => !next && setPending(null)}
+        onCancel={() => setPending(null)}
+        icon={pendingMember ? UserRoundCheck : UserRoundX}
+        title={
+          pendingMember
+            ? currentName
+              ? "Reassign this lead?"
+              : "Assign this lead?"
+            : "Remove the owner?"
+        }
+        description={
+          pendingMember ? (
+            currentName ? (
+              <>
+                It moves off <strong>{currentName}</strong>&rsquo;s desk and onto{" "}
+                <strong>{nextName}</strong>&rsquo;s. {currentName} will no
+                longer be able to see it, and the change is recorded against
+                your name.
+              </>
+            ) : (
+              <>
+                <strong>{nextName}</strong> becomes the owner and it appears in
+                their book. Recorded in the activity trail against your name.
+              </>
+            )
+          ) : (
+            <>
+              It goes back to the unassigned pile.{" "}
+              {currentName ? <strong>{currentName}</strong> : "The current owner"}{" "}
+              will no longer be able to see it.
+            </>
+          )
+        }
+        confirmLabel={
+          pendingMember
+            ? currentName
+              ? "Reassign"
+              : "Assign"
+            : "Unassign"
+        }
+        isPending={assign.isPending}
+        onConfirm={() => {
+          assign.mutate(pending === UNASSIGNED ? null : pending);
+          setPending(null);
+        }}
+      />
     </div>
   );
 }

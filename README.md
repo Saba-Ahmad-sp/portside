@@ -167,7 +167,7 @@ erDiagram
         text country
         text product_interest
         int quantity
-        numeric est_value_usd
+        numeric est_value_inr
         enum source
         enum status
         uuid assigned_to FK

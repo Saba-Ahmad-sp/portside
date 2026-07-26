@@ -259,7 +259,7 @@ leads
   country           text not null
   product_interest  text
   quantity          integer
-  est_value_usd     numeric
+  est_value_inr     numeric
   message           text
   source            lead_source  ('website' | 'manual' | 'referral')
   status            lead_status  default 'new'

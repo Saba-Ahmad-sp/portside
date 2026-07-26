@@ -61,7 +61,7 @@ export default async function DashboardPage() {
         />
         <StatTile
           label="Open value"
-          value={formatValue(stats.openValueUsd)}
+          value={formatValue(stats.openValueInr)}
           caption="Estimated, excluding won and lost"
           accentClassName="text-brass"
         />

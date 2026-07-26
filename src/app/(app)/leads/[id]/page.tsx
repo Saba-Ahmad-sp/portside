@@ -144,7 +144,7 @@ export default async function LeadDetailPage({
               <Fact label="Quantity" value={formatQuantity(lead.quantity)} mono />
               <Fact
                 label="Est. value"
-                value={formatValue(lead.estValueUsd)}
+                value={formatValue(lead.estValueInr)}
                 mono
               />
               <Fact label="Source" value={SOURCE_LABELS[lead.source]} />

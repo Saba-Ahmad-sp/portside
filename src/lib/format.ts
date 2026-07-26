@@ -5,33 +5,41 @@ import { formatDistanceToNowStrict, format, parseISO } from "date-fns";
  *
  * Every screen renders money, quantities and timestamps the same way because
  * they all come through here. Inline `toLocaleString` calls are how a table
- * ends up with "$186,000" in one column and "186000 USD" in the next.
+ * ends up with "₹1,86,000" in one column and "186000 INR" in the next.
+ *
+ * Money is Indian rupees, formatted with the `en-IN` locale so grouping is
+ * lakh/crore (₹1,55,00,000) rather than thousands (₹15,500,000). Getting that
+ * wrong is immediately obvious to anyone the app is actually for.
  */
 
-const usd = new Intl.NumberFormat("en-US", {
+const inr = new Intl.NumberFormat("en-IN", {
   style: "currency",
-  currency: "USD",
+  currency: "INR",
   maximumFractionDigits: 0,
 });
 
-const compactUsd = new Intl.NumberFormat("en-US", {
+/**
+ * Compact form for dense table cells. `en-IN` compact notation is already
+ * lakh/crore aware, so ₹1,54,38,000 renders as ₹1.5Cr rather than ₹15M.
+ */
+const compactInr = new Intl.NumberFormat("en-IN", {
   style: "currency",
-  currency: "USD",
+  currency: "INR",
   notation: "compact",
   maximumFractionDigits: 1,
 });
 
-const plain = new Intl.NumberFormat("en-US");
+const quantity = new Intl.NumberFormat("en-IN");
 
 export const formatValue = (value: number | null) =>
-  value === null ? "—" : usd.format(value);
+  value === null ? "—" : inr.format(value);
 
-/** For dense table cells: $186,000 -> $186K */
+/** For dense table cells: ₹1,54,38,000 -> ₹1.5Cr */
 export const formatValueCompact = (value: number | null) =>
-  value === null ? "—" : compactUsd.format(value);
+  value === null ? "—" : compactInr.format(value);
 
 export const formatQuantity = (value: number | null) =>
-  value === null ? "—" : plain.format(value);
+  value === null ? "—" : quantity.format(value);
 
 /** "2 hours ago" — what a salesperson actually wants to know. */
 export const formatRelative = (iso: string) =>
@@ -42,5 +50,4 @@ export const formatAbsolute = (iso: string) =>
   format(parseISO(iso), "d MMM yyyy, HH:mm");
 
 /** Short form for dense columns: "26 Jul" */
-export const formatShortDate = (iso: string) =>
-  format(parseISO(iso), "d MMM");
+export const formatShortDate = (iso: string) => format(parseISO(iso), "d MMM");

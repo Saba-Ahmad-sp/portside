@@ -87,11 +87,8 @@ export function PipelineDemo() {
             Khalid Al Mansoori · United Arab Emirates
           </p>
         </div>
-        <p
-          data-numeric
-          className="shrink-0 font-mono text-sm text-brass"
-        >
-          $186K
+        <p data-numeric className="shrink-0 font-mono text-sm text-brass">
+          ₹1.5Cr
         </p>
       </div>
 

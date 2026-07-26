@@ -60,7 +60,7 @@ create table public.leads (
   -- what they want (export/import enquiry)
   product_interest  text,
   quantity          integer,
-  est_value_usd     numeric(12, 2),
+  est_value_inr     numeric(12, 2),
   message           text,
 
   -- pipeline
@@ -73,7 +73,7 @@ create table public.leads (
   updated_at        timestamptz not null default now(),
 
   constraint leads_quantity_positive  check (quantity is null or quantity > 0),
-  constraint leads_value_nonnegative  check (est_value_usd is null or est_value_usd >= 0),
+  constraint leads_value_nonnegative  check (est_value_inr is null or est_value_inr >= 0),
   constraint leads_email_shape        check (position('@' in email) > 1)
 );
 

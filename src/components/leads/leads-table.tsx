@@ -94,7 +94,7 @@ export function LeadsTable({
                 data-numeric
                 className="px-4 py-3 text-right font-mono text-xs"
               >
-                {formatValueCompact(lead.estValueUsd)}
+                {formatValueCompact(lead.estValueInr)}
               </td>
 
               <td className="px-4 py-3">
