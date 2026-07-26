@@ -224,6 +224,71 @@ export async function updateLead(
   return data ? toLead(data as unknown as LeadRow) : null;
 }
 
+/**
+ * Counts per pipeline stage, plus open value.
+ *
+ * Six indexed COUNT queries in parallel rather than pulling every row and
+ * grouping in JavaScript. At demo scale the difference is invisible; at ten
+ * thousand leads the second approach would ship ten thousand rows to compute
+ * six numbers. leads_status_idx and leads_assigned_status_idx cover these.
+ */
+export async function leadStats(
+  db: SupabaseClient,
+  opts: { restrictToAssignee?: string } = {},
+): Promise<{ byStatus: Record<LeadDTO["status"], number>; openValueUsd: number }> {
+  const statuses: LeadDTO["status"][] = [
+    "new",
+    "contacted",
+    "qualified",
+    "proposal",
+    "won",
+    "lost",
+  ];
+
+  const scoped = () => {
+    const builder = db.from("leads");
+    return opts.restrictToAssignee
+      ? { builder, assignee: opts.restrictToAssignee }
+      : { builder, assignee: undefined };
+  };
+
+  const counts = await Promise.all(
+    statuses.map(async (status) => {
+      const { builder, assignee } = scoped();
+      let query = builder
+        .select("id", { count: "exact", head: true })
+        .eq("status", status);
+      if (assignee) query = query.eq("assigned_to", assignee);
+
+      const { count, error } = await query;
+      if (error) throw new ApiError(500, "INTERNAL", error.message);
+      return [status, count ?? 0] as const;
+    }),
+  );
+
+  // Value still in play — everything that is neither won nor lost.
+  let openQuery = db
+    .from("leads")
+    .select("est_value_usd")
+    .not("status", "in", "(won,lost)");
+  if (opts.restrictToAssignee) {
+    openQuery = openQuery.eq("assigned_to", opts.restrictToAssignee);
+  }
+
+  const { data: openRows, error: openError } = await openQuery;
+  if (openError) throw new ApiError(500, "INTERNAL", openError.message);
+
+  const openValueUsd = (openRows ?? []).reduce(
+    (sum, row) => sum + (toNumber(row.est_value_usd) ?? 0),
+    0,
+  );
+
+  return {
+    byStatus: Object.fromEntries(counts) as Record<LeadDTO["status"], number>,
+    openValueUsd,
+  };
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Notes                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -335,6 +400,32 @@ export async function listMembers(db: SupabaseClient): Promise<MemberDTO[]> {
     role: row.role,
     isActive: row.is_active,
   }));
+}
+
+/**
+ * Open lead count per member, for the team page.
+ *
+ * One indexed COUNT per member in parallel rather than fetching every lead and
+ * tallying in JavaScript. leads_assigned_status_idx covers exactly this shape.
+ */
+export async function memberWorkload(
+  db: SupabaseClient,
+  memberIds: string[],
+): Promise<Record<string, number>> {
+  const entries = await Promise.all(
+    memberIds.map(async (id) => {
+      const { count, error } = await db
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("assigned_to", id)
+        .not("status", "in", "(won,lost)");
+
+      if (error) throw new ApiError(500, "INTERNAL", error.message);
+      return [id, count ?? 0] as const;
+    }),
+  );
+
+  return Object.fromEntries(entries);
 }
 
 export async function memberExists(

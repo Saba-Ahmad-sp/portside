@@ -86,11 +86,37 @@ export async function getActivities(
   return repo.listActivities(session.db, id);
 }
 
+/**
+ * Pipeline summary for the overview page. Scoped the same way the list is: an
+ * admin sees the whole desk, a member sees only their own book.
+ */
+export async function getStats(session: Session) {
+  const seesEverything = can(session.user, "lead:list:all");
+
+  return repo.leadStats(session.db, {
+    restrictToAssignee: seesEverything ? undefined : session.user.id,
+  });
+}
+
 export async function getMembers(session: Session): Promise<MemberDTO[]> {
   if (!can(session.user, "team:view")) {
     throw ApiError.forbidden("Only admins can view the team.");
   }
   return repo.listMembers(session.db);
+}
+
+/** The team, plus how many open leads each person is carrying. Admin only. */
+export async function getTeamWithWorkload(session: Session) {
+  const members = await getMembers(session);
+  const workload = await repo.memberWorkload(
+    session.db,
+    members.map((member) => member.id),
+  );
+
+  return members.map((member) => ({
+    ...member,
+    openLeads: workload[member.id] ?? 0,
+  }));
 }
 
 /* -------------------------------------------------------------------------- */

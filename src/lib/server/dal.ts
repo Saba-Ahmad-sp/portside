@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { ApiError } from "@/lib/api/responses";
@@ -107,6 +108,22 @@ export async function requireSession(): Promise<Session> {
   const session = await getSession();
   if (!session || !session.user.isActive) {
     throw ApiError.unauthenticated();
+  }
+  return session;
+}
+
+/**
+ * The same check for pages rather than route handlers: a browser wants a
+ * redirect to the sign-in screen, not a 401 JSON body.
+ *
+ * This is the real gate for every authenticated page. proxy.ts also redirects,
+ * but only optimistically — this runs next to the data, so a page cannot render
+ * without it.
+ */
+export async function requireSessionOrRedirect(): Promise<Session> {
+  const session = await getSession();
+  if (!session || !session.user.isActive) {
+    redirect("/login");
   }
   return session;
 }
