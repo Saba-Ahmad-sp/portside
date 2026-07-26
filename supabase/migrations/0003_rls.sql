@@ -42,12 +42,21 @@ alter table public.lead_activities enable row level security;
 -- `anon` is granted nothing anywhere. An anonymous visitor has no database
 -- access of any kind; the public capture form is mediated by the server.
 -- ---------------------------------------------------------------------------
-grant usage on schema public to authenticated;
+grant usage on schema public to authenticated, service_role;
 
+-- What a signed-in staff member may reach. RLS then decides which rows.
 grant select                 on public.profiles        to authenticated;
 grant select, insert, update on public.leads           to authenticated;
 grant select, insert         on public.lead_notes      to authenticated;
 grant select                 on public.lead_activities to authenticated;
+
+-- The trusted server identity. It bypasses RLS, but with "expose new tables"
+-- disabled it still needs table privileges granted explicitly. Used only by
+-- the activity service, the public capture endpoint, and the seed script.
+grant all on public.profiles        to service_role;
+grant all on public.leads           to service_role;
+grant all on public.lead_notes      to service_role;
+grant all on public.lead_activities to service_role;
 
 -- Note what is absent and why:
 --   leads           no DELETE   — leads are retained by design
