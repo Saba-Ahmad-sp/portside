@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { Check, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmAction } from "@/components/shared/confirm-action";
 import { useUpdateStatus } from "@/lib/hooks/use-lead";
 import {
   PIPELINE,
@@ -153,31 +154,62 @@ export function PipelineStepper({
               the pipeline.
             </p>
             {mayEdit && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={updateStatus.isPending}
-                onClick={() => updateStatus.mutate("lost")}
-                className="border-status-lost/40 text-status-lost hover:bg-status-lost/10 hover:text-status-lost"
-              >
-                Mark as lost
-              </Button>
+              <ConfirmAction
+                title="Mark this lead as lost?"
+                description={
+                  <>
+                    It leaves the pipeline and stops counting towards open
+                    value. The lead and its full history are kept — nothing is
+                    deleted.
+                    {viewer.role === "member" &&
+                      " Reopening it afterwards needs an admin."}
+                  </>
+                }
+                confirmLabel="Mark as lost"
+                destructive
+                isPending={updateStatus.isPending}
+                onConfirm={() => updateStatus.mutate("lost")}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={updateStatus.isPending}
+                    className="border-status-lost/40 text-status-lost hover:bg-status-lost/10 hover:text-status-lost"
+                  >
+                    Mark as lost
+                  </Button>
+                }
+              />
             )}
           </>
         )}
 
         {isTerminal(status) && can(viewer, "lead:assign") && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={updateStatus.isPending}
-            onClick={() => updateStatus.mutate("contacted")}
-            className="text-muted-foreground"
-          >
-            Reopen
-          </Button>
+          <ConfirmAction
+            title="Reopen this lead?"
+            description={
+              <>
+                It returns to <strong>Contacted</strong> and starts counting
+                towards open value again. This is recorded in the activity
+                trail against your name.
+              </>
+            }
+            confirmLabel="Reopen"
+            isPending={updateStatus.isPending}
+            onConfirm={() => updateStatus.mutate("contacted")}
+            trigger={
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={updateStatus.isPending}
+                className="text-muted-foreground"
+              >
+                Reopen
+              </Button>
+            }
+          />
         )}
       </div>
     </div>

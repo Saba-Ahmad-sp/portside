@@ -87,6 +87,41 @@ test.describe("member", () => {
     // Notes are writable by the owner.
     await expect(page.getByPlaceholder(/Called the buyer/)).toBeVisible();
   });
+
+  test("asks before closing a lead, and cancelling changes nothing", async ({
+    page,
+  }) => {
+    await page.goto("/leads");
+
+    // Any lead still in the pipeline. Picking by position or filtering on a
+    // specific status would couple this to whatever the seed happened to
+    // assign her; a closed lead has no "Mark as lost" button at all.
+    await page
+      .locator("tbody tr")
+      .filter({ hasNotText: /Won|Lost/ })
+      .first()
+      .getByRole("link")
+      .first()
+      .click();
+
+    await page.waitForURL(/\/leads\/[0-9a-f-]{36}$/);
+
+    await page.getByRole("button", { name: "Mark as lost" }).click();
+
+    // Losing a lead is a terminal state a member cannot undo, so it asks.
+    const dialog = page.getByRole("alertdialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText("Mark this lead as lost?");
+    await expect(dialog).toContainText("nothing is deleted");
+    // A member is told they will need an admin to reverse it.
+    await expect(dialog).toContainText("needs an admin");
+
+    await dialog.getByRole("button", { name: "Cancel" }).click();
+    await expect(dialog).toBeHidden();
+
+    // Still in the pipeline — cancelling was not a silent confirm.
+    await expect(page.getByRole("button", { name: "Mark as lost" })).toBeVisible();
+  });
 });
 
 test.describe("isolation between members", () => {

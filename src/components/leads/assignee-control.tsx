@@ -73,7 +73,16 @@ export function AssigneeControl({
           }
         >
           <SelectTrigger id="assignee" className="h-9 w-full bg-card text-sm">
-            <SelectValue placeholder="Unassigned" />
+            {/*
+              Explicit children rather than letting SelectValue resolve the
+              label itself. Radix maps value -> the text of a mounted item, so
+              in the moment after a reassignment - when the options list is
+              re-rendering - it finds no match and falls back to printing the
+              raw UUID. The name is known here, so say it.
+            */}
+            <SelectValue placeholder="Unassigned">
+              {assignee?.fullName ?? "Unassigned"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
