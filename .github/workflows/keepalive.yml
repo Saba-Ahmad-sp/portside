@@ -1,0 +1,43 @@
+name: Keep database awake
+
+# Supabase pauses free-tier projects after roughly a week of no database
+# activity. This submission may not be opened for a fortnight, and a paused
+# project means a dead demo link — so a daily request keeps it considered
+# active.
+#
+# /api/health runs a COUNT against the leads table, which is what registers as
+# activity. A request that only hit the Next.js server would not.
+#
+# Caveat worth knowing: GitHub disables scheduled workflows in public
+# repositories after 60 days without repository activity. Well beyond the
+# review window here, but it is not a permanent guarantee.
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # 06:17 UTC daily — off the hour, when runners are less busy
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping the health endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request /api/health
+        run: |
+          URL="${{ vars.PRODUCTION_URL }}"
+          if [ -z "$URL" ]; then
+            echo "::warning::PRODUCTION_URL repository variable is not set — nothing to ping."
+            exit 0
+          fi
+
+          echo "Pinging $URL/api/health"
+          RESPONSE=$(curl -sS -w "\n%{http_code}" --max-time 30 "$URL/api/health")
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          CODE=$(echo "$RESPONSE" | tail -n 1)
+
+          echo "$BODY"
+
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Health check returned $CODE — the deployment or its database may be down."
+            exit 1
+          fi

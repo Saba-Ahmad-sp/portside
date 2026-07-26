@@ -53,7 +53,23 @@ export function LeadFilters({
   const [isPending, startTransition] = useTransition();
 
   const currentQ = searchParams.get("q") ?? "";
+
   const [search, setSearch] = useState(currentQ);
+  const [syncedQ, setSyncedQ] = useState(currentQ);
+
+  /**
+   * Keep the input in step when the URL changes from somewhere else — the back
+   * button, "clear all", a shared link.
+   *
+   * Adjusted during render rather than in an effect. React documents this as
+   * the way to reconcile state with a changing prop; doing it in an effect
+   * would render once with the stale value and then immediately again, which
+   * is what the react-hooks/set-state-in-effect rule exists to catch.
+   */
+  if (currentQ !== syncedQ) {
+    setSyncedQ(currentQ);
+    setSearch(currentQ);
+  }
 
   /** Rewrites the query string, always resetting to page 1. */
   const apply = useCallback(
@@ -84,10 +100,6 @@ export function LeadFilters({
     const timer = setTimeout(() => apply({ q: search || null }), 300);
     return () => clearTimeout(timer);
   }, [search, currentQ, apply]);
-
-  // Keep the box in step when the URL changes from elsewhere (back button,
-  // "clear all", a link).
-  useEffect(() => setSearch(currentQ), [currentQ]);
 
   const status = searchParams.get("status") ?? ALL;
   const assigneeId = searchParams.get("assigneeId") ?? ALL;

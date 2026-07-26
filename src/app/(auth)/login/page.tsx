@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Anchor } from "lucide-react";
 
 import { LoginForm } from "@/components/auth/login-form";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata = { title: "Sign in" };
 
@@ -115,14 +117,38 @@ export default function LoginPage() {
               .
             </p>
 
+            {/*
+              The form reads ?next= to send you back where you were headed, and
+              useSearchParams() opts a component out of prerendering. Suspense
+              keeps the rest of this page static and only defers the form.
+            */}
             <div className="mt-8">
-              <LoginForm />
+              <Suspense fallback={<LoginFormSkeleton />}>
+                <LoginForm />
+              </Suspense>
             </div>
           </div>
         </main>
       </div>
 
       <SiteFooter />
+    </div>
+  );
+}
+
+/** Matches the form's layout so nothing shifts when it hydrates. */
+function LoginFormSkeleton() {
+  return (
+    <div className="space-y-5" aria-hidden>
+      <div className="space-y-1.5">
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-9 w-full" />
+      </div>
+      <div className="space-y-1.5">
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-9 w-full" />
+      </div>
+      <Skeleton className="h-10 w-full" />
     </div>
   );
 }
