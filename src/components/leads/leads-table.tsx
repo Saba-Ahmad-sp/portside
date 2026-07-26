@@ -41,7 +41,7 @@ export function LeadsTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-card">
+    <div className="glass-card overflow-x-auto rounded-2xl border border-border">
       <table className="w-full min-w-[56rem] border-collapse text-sm">
         <caption className="sr-only">
           Leads, with company, destination, product interest, estimated value,

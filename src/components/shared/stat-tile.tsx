@@ -43,7 +43,7 @@ export function StatTile({
   );
 
   const className =
-    "block rounded-lg border border-border bg-card p-5 transition-colors";
+    "glass-card block rounded-2xl border border-border p-5 transition-all duration-200";
 
   if (!href) {
     return <div className={className}>{body}</div>;
@@ -54,7 +54,7 @@ export function StatTile({
       href={href}
       className={cn(
         className,
-        "hover:border-brass/40 hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-brass focus-visible:outline-none",
+        "hover:-translate-y-0.5 hover:border-brass/50 hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-brass focus-visible:outline-none",
       )}
     >
       {body}

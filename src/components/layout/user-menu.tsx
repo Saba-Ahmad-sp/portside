@@ -6,6 +6,7 @@ import { LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -27,7 +28,9 @@ export function UserMenu({ user }: { user: SessionUser }) {
   const router = useRouter();
 
   async function signOut() {
-    await getBrowserSupabase().auth.signOut();
+    // `local`, not the default `global`. Signing out on the office desktop
+    // should not silently end the session on someone's phone as well.
+    await getBrowserSupabase().auth.signOut({ scope: "local" });
     router.push("/login");
     router.refresh();
   }
@@ -50,13 +53,24 @@ export function UserMenu({ user }: { user: SessionUser }) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuLabel className="font-normal">
-          <span className="block text-sm">{user.fullName}</span>
-          <span className="block font-mono text-xs text-muted-foreground">
-            {user.email}
-          </span>
-        </DropdownMenuLabel>
+        {/*
+          The label must sit inside a group. shadcn now generates Base UI
+          rather than Radix, and Base UI's GroupLabel throws
+          "MenuGroupContext is missing" outside a Menu.Group — which crashed
+          the whole menu on open, so no items rendered and there was no way to
+          sign out.
+        */}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="font-normal">
+            <span className="block text-sm">{user.fullName}</span>
+            <span className="block font-mono text-xs text-muted-foreground">
+              {user.email}
+            </span>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+
         <DropdownMenuSeparator />
+
         <DropdownMenuItem onClick={signOut} className="gap-2">
           <LogOut className="size-3.5" aria-hidden />
           Sign out

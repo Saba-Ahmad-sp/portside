@@ -231,6 +231,77 @@
 }
 
 @layer components {
+  /* -----------------------------------------------------------------------
+     Glass operations UI
+     -----------------------------------------------------------------------
+     Portside keeps its trade-oriented navy and brass identity, but uses the
+     layered, translucent surfaces from CareOps so every screen feels like one
+     calm application rather than a dark header placed above a paper page.
+  */
+  :root {
+    --paper: oklch(0.17 0.03 250);
+    --ink: oklch(0.94 0.012 85);
+    --rule: oklch(0.31 0.03 250 / 0.72);
+    --background: oklch(0.16 0.03 250);
+    --foreground: var(--ink);
+    --card: oklch(0.22 0.035 250 / 0.62);
+    --card-foreground: var(--ink);
+    --popover: oklch(0.205 0.035 250 / 0.96);
+    --popover-foreground: var(--ink);
+    --primary: oklch(0.78 0.13 76);
+    --primary-foreground: oklch(0.17 0.03 250);
+    --secondary: oklch(0.26 0.035 250 / 0.72);
+    --secondary-foreground: var(--ink);
+    --muted: oklch(0.25 0.03 250 / 0.72);
+    --muted-foreground: oklch(0.74 0.025 245);
+    --accent: oklch(0.29 0.05 245 / 0.72);
+    --accent-foreground: var(--ink);
+    --border: var(--rule);
+    --input: oklch(0.23 0.03 250 / 0.8);
+    --sidebar: oklch(0.135 0.026 250 / 0.84);
+    --sidebar-border: oklch(0.38 0.04 245 / 0.45);
+    --sidebar-accent: oklch(0.26 0.055 245 / 0.65);
+    --sidebar-foreground: oklch(0.93 0.012 85);
+  }
+
+  body {
+    min-height: 100dvh;
+    background:
+      linear-gradient(135deg, oklch(0.105 0.025 250 / 0.9), oklch(0.14 0.04 245 / 0.76)),
+      url("/background-auth.webp") center / cover no-repeat;
+    background-attachment: fixed;
+  }
+
+  .glass-card,
+  [data-slot="card"] {
+    background: linear-gradient(135deg, oklch(0.31 0.035 250 / 0.7), oklch(0.2 0.03 250 / 0.6));
+    border-color: oklch(0.55 0.04 245 / 0.28);
+    box-shadow: 0 18px 50px oklch(0.08 0.02 250 / 0.28);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+
+  .glass-panel {
+    background: oklch(0.16 0.03 250 / 0.74);
+    border: 1px solid oklch(0.55 0.04 245 / 0.25);
+    box-shadow: 0 18px 50px oklch(0.08 0.02 250 / 0.24);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
+
+  .app-canvas {
+    background:
+      linear-gradient(oklch(0.16 0.03 250 / 0.82), oklch(0.16 0.03 250 / 0.94)),
+      radial-gradient(circle at 75% 0%, oklch(0.42 0.095 190 / 0.15), transparent 34rem);
+  }
+
+  .glass-input {
+    background: oklch(0.17 0.028 250 / 0.68) !important;
+    border-color: oklch(0.55 0.04 245 / 0.28) !important;
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+
   /* A hairline that reads as a ruled ledger line rather than a UI divider. */
   .rule-hairline {
     background-image: linear-gradient(
@@ -262,6 +333,11 @@
   .dark .paper-grain::before {
     mix-blend-mode: screen;
     opacity: 0.16;
+  }
+
+  .paper-grain::before {
+    opacity: 0.08;
+    mix-blend-mode: screen;
   }
 
   /*
@@ -303,4 +379,33 @@
     background-position: center;
     mask-image: radial-gradient(ellipse 90% 70% at 50% 40%, #000 20%, transparent 78%);
   }
+}
+
+/* Unlayered token overrides intentionally sit after Tailwind's layers and the
+   original Portside tokens. This keeps readable light text on the dark glass
+   canvas rather than inheriting the previous paper-and-ink palette. */
+:root {
+  --paper: oklch(0.17 0.03 250);
+  --ink: oklch(0.94 0.012 85);
+  --rule: oklch(0.31 0.03 250 / 0.72);
+  --background: oklch(0.16 0.03 250);
+  --foreground: var(--ink);
+  --card: oklch(0.22 0.035 250 / 0.62);
+  --card-foreground: var(--ink);
+  --popover: oklch(0.205 0.035 250 / 0.96);
+  --popover-foreground: var(--ink);
+  --primary: oklch(0.78 0.13 76);
+  --primary-foreground: oklch(0.17 0.03 250);
+  --secondary: oklch(0.26 0.035 250 / 0.72);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.25 0.03 250 / 0.72);
+  --muted-foreground: oklch(0.74 0.025 245);
+  --accent: oklch(0.29 0.05 245 / 0.72);
+  --accent-foreground: var(--ink);
+  --border: var(--rule);
+  --input: oklch(0.23 0.03 250 / 0.8);
+  --sidebar: oklch(0.135 0.026 250 / 0.84);
+  --sidebar-border: oklch(0.38 0.04 245 / 0.45);
+  --sidebar-accent: oklch(0.26 0.055 245 / 0.65);
+  --sidebar-foreground: oklch(0.93 0.012 85);
 }

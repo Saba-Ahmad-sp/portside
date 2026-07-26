@@ -43,7 +43,7 @@ export default async function TeamPage() {
         </p>
       </header>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-card">
+      <div className="glass-card overflow-x-auto rounded-2xl border border-border">
         <table className="w-full min-w-[36rem] border-collapse text-sm">
           <caption className="sr-only">
             Team members with their role and open lead count.

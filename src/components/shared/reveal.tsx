@@ -18,20 +18,19 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 export function Reveal({
   children,
   delay = 0,
-  y = 24,
   className,
 }: {
   children: React.ReactNode;
   delay?: number;
-  y?: number;
   className?: string;
 }) {
-  const reduceMotion = useReducedMotion();
-
   return (
     <motion.div
       className={className}
-      initial={reduceMotion ? false : { opacity: 0, y }}
+      /* Content must be readable before IntersectionObserver/Motion hydrate.
+         `whileInView` still adds the final state, but visibility never relies
+         on client-side JavaScript or a user scrolling first. */
+      initial={false}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.7, delay, ease: EASE }}
@@ -57,12 +56,10 @@ export function RevealGroup({
   stagger?: number;
   className?: string;
 }) {
-  const reduceMotion = useReducedMotion();
-
   const container: Variants = {
     hidden: {},
     visible: {
-      transition: { staggerChildren: reduceMotion ? 0 : stagger },
+      transition: { staggerChildren: stagger },
     },
   };
 
@@ -70,7 +67,7 @@ export function RevealGroup({
     <motion.div
       className={className}
       variants={container}
-      initial={reduceMotion ? false : "hidden"}
+      initial={false}
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
     >

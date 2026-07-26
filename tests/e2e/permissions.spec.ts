@@ -149,6 +149,50 @@ test.describe("isolation between members", () => {
   });
 });
 
+test.describe("signing out", () => {
+  /**
+   * Signs in fresh rather than reusing a saved session, and as the second
+   * admin, who no other spec touches. Signing out ends that session — reusing
+   * the shared admin state here would leave every later spec unauthenticated.
+   */
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  test("the user menu opens and signs the user out", async ({ page }) => {
+    // This regressed silently once: shadcn now generates Base UI, whose
+    // GroupLabel throws outside a Menu.Group. The menu crashed on open, so no
+    // items rendered and there was no way to switch accounts. Nothing else in
+    // the suite touched it.
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+
+    await page.goto("/login");
+    await page.getByLabel("Email").fill("dev@portside.demo");
+    await page.getByLabel("Password").fill("PortsideDemo!2026");
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Leads", level: 1 }),
+    ).toBeVisible({ timeout: 15_000 });
+
+    await page
+      .getByRole("button")
+      .filter({ hasText: /Imran Qureshi/i })
+      .first()
+      .click();
+
+    const signOut = page.getByRole("menuitem", { name: /sign out/i });
+    await expect(signOut).toBeVisible();
+
+    await signOut.click();
+    await page.waitForURL(/\/login/);
+
+    // The session is really gone, not just the redirect.
+    await page.goto("/leads");
+    await expect(page).toHaveURL(/\/login/);
+
+    expect(pageErrors, "the menu must not throw").toEqual([]);
+  });
+});
+
 test.describe("signed out", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 

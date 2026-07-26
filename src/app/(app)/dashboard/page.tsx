@@ -119,7 +119,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        <ul className="mt-3 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+        <ul className="glass-card mt-3 divide-y divide-border overflow-hidden rounded-2xl border border-border">
           {recent.data.map((lead) => (
             <li key={lead.id}>
               <Link

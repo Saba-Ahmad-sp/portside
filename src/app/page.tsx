@@ -51,9 +51,9 @@ export default function LandingPage() {
     <>
       <Hero />
 
-      <main className="paper-grain relative flex-1 bg-background">
+      <main className="app-canvas paper-grain relative flex-1">
         {/* ------------------------------------------------------ marquee */}
-        <div className="border-b border-border bg-card/60 py-4 text-muted-foreground">
+        <div className="border-y border-border bg-sidebar/45 py-4 text-muted-foreground backdrop-blur-xl">
           <Marquee items={ROUTES} durationSeconds={46} />
         </div>
 
@@ -72,11 +72,11 @@ export default function LandingPage() {
             </h2>
           </Reveal>
 
-          <RevealGroup className="mt-12 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
+          <RevealGroup className="glass-card mt-12 grid gap-px overflow-hidden rounded-2xl border border-border sm:grid-cols-3">
             {CAPABILITIES.map((capability) => (
               <RevealItem
                 key={capability.title}
-                className="group bg-card p-7 transition-colors hover:bg-accent/40"
+                className="group bg-transparent p-7 transition-colors hover:bg-white/5"
               >
                 <span className="flex size-9 items-center justify-center rounded-md bg-brass/10 text-brass transition-transform group-hover:scale-105">
                   <capability.icon className="size-4" aria-hidden />

@@ -113,7 +113,7 @@ export function EnquiryForm() {
         initial={reduceMotion ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col items-start gap-4 rounded-lg border border-border bg-card p-8"
+        className="glass-card flex flex-col items-start gap-4 rounded-2xl border border-border p-8"
         role="status"
         aria-live="polite"
       >
@@ -145,7 +145,7 @@ export function EnquiryForm() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="rounded-lg border border-border bg-card p-6 sm:p-8"
+      className="glass-card rounded-2xl border border-border p-6 sm:p-8"
     >
       <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
         {REQUIRED_FIELDS.map((field) => (
@@ -167,7 +167,7 @@ export function EnquiryForm() {
             placeholder="Product, grade, volume, and when you need it."
             aria-invalid={Boolean(errors.message)}
             aria-describedby={errors.message ? "message-error" : undefined}
-            className="mt-1.5 resize-y bg-background"
+            className="glass-input mt-1.5 resize-y"
             {...register("message")}
           />
           <FieldError id="message-error" message={errors.message?.message} />
@@ -298,7 +298,7 @@ function FormField({
         placeholder={field.placeholder}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
-        className="mt-1.5 bg-background"
+        className="glass-input mt-1.5"
         {...register(field.name)}
       />
       <FieldError id={errorId} message={error} />
