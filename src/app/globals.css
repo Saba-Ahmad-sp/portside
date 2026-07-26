@@ -264,6 +264,36 @@
     opacity: 0.16;
   }
 
+  /*
+   * Infinite marquee. CSS rather than JavaScript: it runs on the compositor,
+   * costs no main-thread work, and keeps running while React is busy.
+   * The track is duplicated in the markup, so translating exactly -50% loops
+   * seamlessly.
+   */
+  @keyframes marquee-track {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  .marquee-track {
+    animation: marquee-track var(--marquee-duration, 42s) linear infinite;
+    will-change: transform;
+  }
+
+  .marquee-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+  }
+
   /* Faint chart-paper grid for the marketing hero. */
   .chart-grid {
     background-image:
