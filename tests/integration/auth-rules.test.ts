@@ -44,11 +44,14 @@ describe("401 — no session", () => {
   });
 
   it("rejects a forged bearer token", async () => {
-    const response = await fetch(
-      `${process.env.TEST_BASE_URL ?? "http://localhost:3001"}/api/leads`,
-      { headers: { Authorization: "Bearer not-a-real-token" } },
-    );
-    expect(response.status).toBe(401);
+    // Goes through callApi like every other request. The first version called
+    // fetch directly with its own hardcoded base URL, which silently stopped
+    // pointing at the app when the dev port changed.
+    const { status } = await callApi("/api/leads", {
+      rawToken: "not-a-real-token",
+    });
+
+    expect(status).toBe(401);
   });
 });
 

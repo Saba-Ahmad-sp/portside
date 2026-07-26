@@ -62,6 +62,11 @@ type ApiOptions = {
   as?: AccountName;
   method?: string;
   body?: unknown;
+  /**
+   * Send this bearer token verbatim instead of signing in. For asserting what
+   * happens with a token the server should reject.
+   */
+  rawToken?: string;
 };
 
 export type ApiResult<T = unknown> = {
@@ -72,13 +77,14 @@ export type ApiResult<T = unknown> = {
 /** One call shape for every request in the suite. */
 export async function callApi<T = unknown>(
   path: string,
-  { as, method = "GET", body }: ApiOptions = {},
+  { as, method = "GET", body, rawToken }: ApiOptions = {},
 ): Promise<ApiResult<T>> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
-  if (as) headers.Authorization = `Bearer ${await tokenFor(as)}`;
+  if (rawToken) headers.Authorization = `Bearer ${rawToken}`;
+  else if (as) headers.Authorization = `Bearer ${await tokenFor(as)}`;
 
   const response = await fetch(`${BASE_URL}${path}`, {
     method,
