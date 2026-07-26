@@ -1,8 +1,15 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ---------------------------------------------------------------------------
+# Portside — .gitignore
+#
+# NOTE: Task B of this brief calls out "secrets in the repo" as a defect.
+# Nothing in this project may ever commit a credential. `.env*` is ignored
+# below with a single explicit exception for `.env.example`, which contains
+# key NAMES only and never values.
+# ---------------------------------------------------------------------------
 
-# dependencies
-/node_modules
-/.pnp
+# --- Dependencies ----------------------------------------------------------
+node_modules/
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,32 +17,94 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
+# --- Secrets & environment -------------------------------------------------
+.env
+.env.*
+!.env.example
 *.pem
+*.key
+*.p12
+*.pfx
+secrets.json
+service-account*.json
 
-# debug
+# --- Next.js build output --------------------------------------------------
+.next/
+out/
+build/
+dist/
+next-env.d.ts
+*.tsbuildinfo
+
+# --- Turbopack / bundler caches --------------------------------------------
+.turbo/
+.swc/
+.cache/
+
+# --- Testing ---------------------------------------------------------------
+coverage/
+*.lcov
+.nyc_output/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/          # saved storageState — contains real session tokens
+
+# Vitest
+.vitest/
+vitest.config.ts.timestamp-*
+
+# --- Supabase CLI ----------------------------------------------------------
+# Keep supabase/migrations/ and supabase/config.toml — they ARE the schema.
+supabase/.temp/
+supabase/.branches/
+supabase/logs/
+supabase/seed-local.sql
+
+# --- Deployment ------------------------------------------------------------
+.vercel/
+.netlify/
+
+# --- Logs ------------------------------------------------------------------
+*.log
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
 
-# env files (can opt-in for committing if needed)
-.env*
+# --- Editors ---------------------------------------------------------------
+.idea/
+*.swp
+*.swo
+*~
 
-# vercel
-.vercel
+# VS Code: share recommended extensions + settings, ignore everything else
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# --- OS --------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# --- Misc ------------------------------------------------------------------
+*.tgz
+.eslintcache
+.stylelintcache
+tmp/
+temp/
+scratch/
