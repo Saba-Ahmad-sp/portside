@@ -27,6 +27,37 @@ alter table public.lead_notes      enable row level security;
 alter table public.lead_activities enable row level security;
 
 -- ---------------------------------------------------------------------------
+-- TABLE PRIVILEGES — least privilege, declared explicitly.
+--
+-- This project is created with Supabase's "Automatically expose new tables"
+-- setting OFF, which is what Supabase itself recommends. Nothing is reachable
+-- through the Data API unless it is granted here, in a migration, in version
+-- control. Privileges are part of the security posture, so they belong in the
+-- repo rather than in a dashboard toggle.
+--
+-- Two independent gates have to agree before a row is returned:
+--   GRANT decides whether the role may touch the table at all
+--   POLICY decides which rows, and what they may become
+--
+-- `anon` is granted nothing anywhere. An anonymous visitor has no database
+-- access of any kind; the public capture form is mediated by the server.
+-- ---------------------------------------------------------------------------
+grant usage on schema public to authenticated;
+
+grant select                 on public.profiles        to authenticated;
+grant select, insert, update on public.leads           to authenticated;
+grant select, insert         on public.lead_notes      to authenticated;
+grant select                 on public.lead_activities to authenticated;
+
+-- Note what is absent and why:
+--   leads           no DELETE   — leads are retained by design
+--   lead_notes      no UPDATE/DELETE — notes are append-only
+--   lead_activities no INSERT/UPDATE/DELETE — the audit trail is written only
+--                   by the service role, so no client can forge history
+--   profiles        no INSERT/UPDATE — profiles are created by the signup
+--                   trigger, so a member cannot promote themselves to admin
+
+-- ---------------------------------------------------------------------------
 -- ANONYMOUS ACCESS: NONE.
 --
 -- The public capture form does NOT write to the database from the browser.
@@ -86,9 +117,9 @@ create policy "leads: admins update all, members update assigned"
     or assigned_to = (select auth.uid())
   );
 
--- No DELETE policy anywhere: leads are retained by design. Revoking the grant
--- as well makes the intent explicit rather than implicit in a missing policy.
-revoke delete on public.leads from anon, authenticated;
+-- No DELETE policy and no DELETE grant: leads are retained by design.
+-- Both gates say no, so this is not an oversight that a future grant could
+-- silently undo.
 
 -- ---------------------------------------------------------------------------
 -- lead_notes
@@ -118,7 +149,7 @@ create policy "lead_notes: authors write on leads they can see"
     )
   );
 
-revoke update, delete on public.lead_notes from anon, authenticated;
+-- Append-only: no UPDATE/DELETE policy and no UPDATE/DELETE grant.
 
 -- ---------------------------------------------------------------------------
 -- lead_activities
@@ -137,4 +168,5 @@ create policy "lead_activities: readable with the parent lead"
     or (select private.owns_lead(lead_id))
   );
 
-revoke insert, update, delete on public.lead_activities from anon, authenticated;
+-- Write-protected: no INSERT/UPDATE/DELETE policy and no such grant. The trail
+-- is written exclusively by the service role, which bypasses both gates.

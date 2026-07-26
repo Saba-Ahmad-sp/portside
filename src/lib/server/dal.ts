@@ -1,0 +1,112 @@
+import "server-only";
+
+import { cache } from "react";
+import { headers } from "next/headers";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import { ApiError } from "@/lib/api/responses";
+import type { PermissionUser } from "@/lib/permissions";
+import {
+  supabaseFromCookies,
+  supabaseFromToken,
+} from "@/lib/server/supabase/server";
+
+/**
+ * Portside — Data Access Layer.
+ *
+ * This is the recommended Next.js pattern: a server-only module that resolves
+ * the session once, verifies it, and hands back both the caller's identity and
+ * a database client scoped to that caller.
+ *
+ * Two things it deliberately does NOT rely on:
+ *
+ *  - proxy.ts. Proxy is an optimistic redirect for UX only. The Next.js docs
+ *    warn that a matcher change or a refactor can silently remove proxy
+ *    coverage, so authorisation is verified here, next to the data.
+ *
+ *  - Layouts. Layouts do not re-render on navigation under partial rendering,
+ *    so a check there would not run on every route change.
+ *
+ * Wrapped in React `cache()` so that a page rendering a header, a table and a
+ * detail panel resolves the session once per request, not three times.
+ */
+
+export type SessionUser = PermissionUser & {
+  fullName: string;
+  email: string;
+};
+
+export type Session = {
+  user: SessionUser;
+  /**
+   * A Supabase client acting AS THIS USER. Every query it runs is subject to
+   * Row Level Security. Services and repositories must use this client, never
+   * the admin one, so RLS stays a real second layer rather than decoration.
+   */
+  db: SupabaseClient;
+};
+
+function readBearerToken(header: string | null): string | null {
+  if (!header) return null;
+  const [scheme, token] = header.split(" ");
+  if (scheme?.toLowerCase() !== "bearer" || !token) return null;
+  return token.trim() || null;
+}
+
+/**
+ * Resolves the current session, or null.
+ *
+ * Accepts either an `Authorization: Bearer <access_token>` header (API
+ * clients, curl, the integration tests) or the httpOnly cookie session (the
+ * app itself). Same identity, same RLS, either way.
+ */
+export const getSession = cache(async (): Promise<Session | null> => {
+  const requestHeaders = await headers();
+  const bearer = readBearerToken(requestHeaders.get("authorization"));
+
+  const db = bearer
+    ? supabaseFromToken(bearer)
+    : await supabaseFromCookies();
+
+  // getUser() revalidates the token against Supabase. getSession() only decodes
+  // whatever the client sent, so it must never be trusted server-side.
+  const {
+    data: { user },
+    error,
+  } = await db.auth.getUser();
+
+  if (error || !user) return null;
+
+  const { data: profile } = await db
+    .from("profiles")
+    .select("id, full_name, email, role, is_active")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) return null;
+
+  return {
+    db,
+    user: {
+      id: profile.id,
+      fullName: profile.full_name,
+      email: profile.email,
+      role: profile.role,
+      isActive: profile.is_active,
+    },
+  };
+});
+
+/**
+ * The session, or a 401. Every authenticated route handler starts here.
+ *
+ * A deactivated account is treated as unauthenticated rather than forbidden —
+ * there is no action it could take, so there is nothing to distinguish.
+ */
+export async function requireSession(): Promise<Session> {
+  const session = await getSession();
+  if (!session || !session.user.isActive) {
+    throw ApiError.unauthenticated();
+  }
+  return session;
+}
