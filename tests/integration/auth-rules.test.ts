@@ -251,14 +251,24 @@ describe("pagination and filtering", () => {
   });
 
   it("searches across company and contact name", async () => {
-    const { body } = await callApi<{
-      data: Array<{ company: string }>;
+    const companySearch = await callApi<{
+      data: Array<{ company: string; fullName: string }>;
       meta: { total: number };
-    }>("/api/leads?q=trading&limit=100", { as: "admin" });
+    }>("/api/leads?q=apex&limit=100", { as: "admin" });
 
-    expect(body.meta.total).toBeGreaterThan(0);
-    for (const lead of body.data) {
-      expect(lead.company.toLowerCase()).toContain("trading");
+    expect(companySearch.body.meta.total).toBeGreaterThan(0);
+    for (const lead of companySearch.body.data) {
+      expect(lead.company.toLowerCase()).toContain("apex");
+    }
+
+    const contactSearch = await callApi<{
+      data: Array<{ company: string; fullName: string }>;
+      meta: { total: number };
+    }>("/api/leads?q=arjun&limit=100", { as: "admin" });
+
+    expect(contactSearch.body.meta.total).toBeGreaterThan(0);
+    for (const lead of contactSearch.body.data) {
+      expect(lead.fullName.toLowerCase()).toContain("arjun");
     }
   });
 });

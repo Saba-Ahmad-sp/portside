@@ -32,7 +32,7 @@ test.describe("public capture form", () => {
     await page.getByLabel("Your name").fill("Playwright Buyer");
     await page.getByLabel("Work email").fill(`buyer+${stamp}@e2e.test`);
     await page.getByLabel("Company").fill(COMPANY);
-    await page.getByLabel("Destination country").fill("United Kingdom");
+    await page.getByLabel("Your location").fill("Bengaluru, India");
     await page
       .getByLabel("What are you looking for?")
       .fill("End-to-end browser test of the public capture flow.");

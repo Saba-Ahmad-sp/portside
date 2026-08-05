@@ -41,16 +41,16 @@ type Field = {
 };
 
 const REQUIRED_FIELDS: Field[] = [
-  { name: "fullName", label: "Your name", placeholder: "Amara Okafor", required: true },
+  { name: "fullName", label: "Your name", placeholder: "Arjun Mehta", required: true },
   { name: "email", label: "Work email", placeholder: "you@company.com", type: "email", required: true },
-  { name: "company", label: "Company", placeholder: "Westbridge Foods Ltd", required: true },
-  { name: "country", label: "Destination country", placeholder: "United Kingdom", required: true },
+  { name: "company", label: "Company", placeholder: "Apex Riders Bengaluru", required: true },
+  { name: "country", label: "Your location", placeholder: "Bengaluru, India", required: true },
 ];
 
 const OPTIONAL_FIELDS: Field[] = [
-  { name: "phone", label: "Phone or WhatsApp", placeholder: "+44 7700 900000" },
-  { name: "productInterest", label: "Product interest", placeholder: "Basmati rice, 25kg bags" },
-  { name: "quantity", label: "Estimated quantity", placeholder: "2400", type: "number" },
+  { name: "phone", label: "Phone or WhatsApp", placeholder: "+91 98765 43210" },
+  { name: "productInterest", label: "What do you need imported?", placeholder: "ECE 22.06 full-face helmets" },
+  { name: "quantity", label: "Estimated quantity", placeholder: "180", type: "number" },
 ];
 
 type FormApi = UseFormReturn<PublicLeadValues, unknown, PublicLeadInput>;
@@ -164,7 +164,7 @@ export function EnquiryForm() {
           <Textarea
             id="message"
             rows={4}
-            placeholder="Product, grade, volume, and when you need it."
+            placeholder="Product, preferred source country, compatibility or certification, quantity and when you need it."
             aria-invalid={Boolean(errors.message)}
             aria-describedby={errors.message ? "message-error" : undefined}
             className="glass-input mt-1.5 resize-y"

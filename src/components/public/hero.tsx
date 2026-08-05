@@ -171,9 +171,9 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.72, ease: EASE }}
             className="mt-6 max-w-lg text-base leading-relaxed text-sidebar-foreground/70 sm:text-lg"
           >
-            The desk where trade enquiries stop getting lost in a WhatsApp
-            group. Capture, assign, work the pipeline — and keep a complete
-            record of who did what, and when.
+            The desk where import enquiries stop getting lost in a WhatsApp
+            group. Capture the requirement, source overseas, work the pipeline
+            — and keep a complete record of who did what, and when.
           </motion.p>
 
           <motion.div

@@ -23,37 +23,37 @@ const SCRIPT = [
   {
     stage: 0,
     icon: Sparkles,
-    line: "Lead created from the public enquiry form",
+    line: "Import enquiry received from the public form",
     actor: "Website",
   },
   {
     stage: 0,
     icon: UserPlus,
-    line: "Saba assigned this lead to Priya Nair",
+    line: "Saba assigned this import request to Priya Nair",
     actor: "Saba Ahmad",
   },
   {
     stage: 1,
     icon: Check,
-    line: "Priya moved this from New to Contacted",
+    line: "Priya confirmed the overseas sourcing requirement",
     actor: "Priya Nair",
   },
   {
     stage: 2,
     icon: MessageSquare,
-    line: "Priya added a note",
+    line: "Priya added supplier requirements",
     actor: "Priya Nair",
   },
   {
     stage: 3,
     icon: Check,
-    line: "Priya moved this from Qualified to Proposal",
+    line: "Priya shared landed import pricing",
     actor: "Priya Nair",
   },
   {
     stage: 4,
     icon: Check,
-    line: "Priya moved this from Proposal to Won",
+    line: "Priya received approval to place the import order",
     actor: "Priya Nair",
   },
 ] as const;
@@ -81,14 +81,14 @@ export function PipelineDemo() {
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="truncate font-display text-lg text-sidebar-foreground">
-            Gulf Star General Trading
+            Apex Riders Bengaluru
           </p>
           <p className="mt-0.5 truncate text-xs text-sidebar-foreground/55">
-            Khalid Al Mansoori · United Arab Emirates
+            Arjun Mehta · Bengaluru, India
           </p>
         </div>
         <p data-numeric className="shrink-0 font-mono text-sm text-brass">
-          ₹1.5Cr
+          ₹3.5L
         </p>
       </div>
 
