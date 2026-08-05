@@ -26,6 +26,8 @@ export const ACCOUNTS = {
   admin: "admin@portside.demo",
   priya: "priya@portside.demo",
   rahul: "rahul@portside.demo",
+  /** Subject of the access tests — no other spec depends on her. */
+  aisha: "aisha@portside.demo",
 } as const;
 
 export type AccountName = keyof typeof ACCOUNTS;

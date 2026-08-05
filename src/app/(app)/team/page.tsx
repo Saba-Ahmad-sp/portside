@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { MemberAccessToggle } from "@/components/team/member-access-toggle";
 import { can } from "@/lib/permissions";
 import { requireSessionOrRedirect } from "@/lib/server/dal";
 import { getTeamWithWorkload } from "@/lib/server/lead-service";
@@ -8,7 +9,7 @@ import { getTeamWithWorkload } from "@/lib/server/lead-service";
 export const metadata = { title: "Team" };
 
 /**
- * Team directory — admin only, read-only.
+ * Team directory — admin only.
  *
  * This route is the clearest demonstration of client-and-server permission
  * enforcement working together:
@@ -74,6 +75,12 @@ export default async function TeamPage() {
               >
                 Open leads
               </th>
+              <th
+                scope="col"
+                className="px-4 py-2.5 text-right font-mono text-[0.625rem] font-normal tracking-[0.14em] text-muted-foreground uppercase"
+              >
+                Access
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -83,10 +90,17 @@ export default async function TeamPage() {
                 className="border-b border-border/70 last:border-0"
               >
                 <td className="px-4 py-3 font-medium">
-                  {member.fullName}
+                  <span className={member.isActive ? undefined : "opacity-55"}>
+                    {member.fullName}
+                  </span>
                   {member.id === session.user.id && (
                     <span className="ml-2 font-mono text-[0.625rem] tracking-[0.12em] text-muted-foreground uppercase">
                       you
+                    </span>
+                  )}
+                  {!member.isActive && (
+                    <span className="ml-2 font-mono text-[0.625rem] tracking-[0.12em] text-status-lost uppercase">
+                      no access
                     </span>
                   )}
                 </td>
@@ -119,16 +133,29 @@ export default async function TeamPage() {
                     </span>
                   )}
                 </td>
+                <td className="px-4 py-3 text-right">
+                  {/*
+                    Members only. The server refuses it for admins too — this
+                    just avoids offering a control that would be rejected.
+                  */}
+                  {member.role === "member" ? (
+                    <MemberAccessToggle member={member} />
+                  ) : (
+                    <span className="font-mono text-[0.625rem] tracking-[0.12em] text-muted-foreground/50 uppercase">
+                      —
+                    </span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Adding and removing users is out of scope for this build — accounts are
-        provisioned by the seed script. A real implementation would also need to
-        prevent demoting the last remaining admin.
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        Removing access signs a person out and refuses them at every screen and
+        endpoint; it deletes nothing and is reversible. Only members&rsquo;
+        access can be changed here.
       </p>
     </div>
   );

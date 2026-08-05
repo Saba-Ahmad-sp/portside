@@ -428,6 +428,64 @@ export async function memberWorkload(
   return Object.fromEntries(entries);
 }
 
+export async function findMember(
+  db: SupabaseClient,
+  id: string,
+): Promise<MemberDTO | null> {
+  const { data, error } = await db
+    .from("profiles")
+    .select("id, full_name, email, role, is_active")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new ApiError(500, "INTERNAL", error.message);
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    fullName: data.full_name,
+    email: data.email,
+    role: data.role,
+    isActive: data.is_active,
+  };
+}
+
+/** How many admins can still sign in. Used to refuse locking everyone out. */
+export async function countActiveAdmins(db: SupabaseClient): Promise<number> {
+  const { count, error } = await db
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role", "admin")
+    .eq("is_active", true);
+
+  if (error) throw new ApiError(500, "INTERNAL", error.message);
+  return count ?? 0;
+}
+
+export async function setMemberActive(
+  db: SupabaseClient,
+  id: string,
+  isActive: boolean,
+): Promise<MemberDTO | null> {
+  const { data, error } = await db
+    .from("profiles")
+    .update({ is_active: isActive })
+    .eq("id", id)
+    .select("id, full_name, email, role, is_active")
+    .maybeSingle();
+
+  if (error) throw new ApiError(500, "INTERNAL", error.message);
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    fullName: data.full_name,
+    email: data.email,
+    role: data.role,
+    isActive: data.is_active,
+  };
+}
+
 export async function memberExists(
   db: SupabaseClient,
   id: string,

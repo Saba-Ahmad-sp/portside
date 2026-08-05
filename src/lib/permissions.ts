@@ -46,7 +46,9 @@ export type Action =
   /** Read the activity trail. */
   | "lead:viewActivity"
   /** See the team directory. */
-  | "team:view";
+  | "team:view"
+  /** Deactivate or restore a colleague's access. */
+  | "team:setActive";
 
 export const ACTIONS: readonly Action[] = [
   "lead:list:all",
@@ -58,6 +60,7 @@ export const ACTIONS: readonly Action[] = [
   "lead:addNote",
   "lead:viewActivity",
   "team:view",
+  "team:setActive",
 ] as const;
 
 const isAdmin = (user: PermissionUser) => user.role === "admin";
@@ -84,6 +87,7 @@ export function can(
     case "lead:list:all":
     case "lead:assign":
     case "team:view":
+    case "team:setActive":
       return isAdmin(user);
 
     // --- Any active staff member -----------------------------------------

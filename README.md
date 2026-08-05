@@ -43,8 +43,8 @@ A second admin (`dev@portside.demo`) also exists in the seed. Two admins is deli
 | Assignment to a user | `PATCH /api/leads/:id/assignment`, admin only |
 | Notes with timestamps | Append-only, shown as relative + absolute time |
 | Activity trail | Written server-side on every change; no client can write to it |
-| JSON API with pagination, filtering, status codes | 10 endpoints, [documented below](#api) |
-| Automated tests | **88 tests** — 29 unit, 37 integration, 22 browser |
+| JSON API with pagination, filtering, status codes | 11 endpoints, [documented below](#api) |
+| Automated tests | **103 tests** — 32 unit, 48 integration, 23 browser |
 | Deployment on a free tier | Vercel + Supabase |
 
 ---
@@ -78,7 +78,7 @@ src/
 │  ├─ (public)/page.tsx            landing + capture form
 │  ├─ (auth)/login/page.tsx
 │  ├─ (app)/                       dashboard · leads · leads/[id] · team
-│  └─ api/                         10 route handlers
+│  └─ api/                         11 route handlers
 ├─ components/                     leads/ · layout/ · shared/ · public/ · ui/
 ├─ lib/
 │  ├─ permissions.ts               ★ PURE — shared by client and server
@@ -124,6 +124,9 @@ Hiding a button is courtesy, not security. Layer 2 is what the tests assert agai
 | Add a note | ✅ any | ✅ own only |
 | View activity trail | ✅ any | ✅ own only |
 | View team | ✅ | ❌ → `403` |
+| Remove / restore a **member's** access | ✅ | ❌ → `403` |
+| Remove an **admin's** access | ❌ → `403` | ❌ |
+| Remove your own access | ❌ → `409` | ❌ |
 | Delete a lead | ❌ *not implemented — see Assumptions* | ❌ |
 
 ### `403` vs `404` — deliberate
@@ -256,6 +259,7 @@ A `422` additionally carries `error.fields`, a `field → messages` map ready to
 | `GET` | `/api/leads/:id/activities` | required | `200` | `400` `401` `404` |
 | `PATCH` | `/api/leads/:id/assignment` | **admin** | `200` | `400` `401` `403` `404` `422` |
 | `GET` | `/api/members` | **admin** | `200` | `401` `403` |
+| `PATCH` | `/api/members/:id/access` | **admin** | `200` | `400` `401` `403` `404` `409` `422` |
 | `GET` | `/api/health` | public | `200` | `503` |
 
 ### Status codes
@@ -345,15 +349,15 @@ curl -s -X POST "$BASE/api/public/leads" -H "Content-Type: application/json" \
 ## Tests
 
 ```bash
-npm run test          # unit + integration   (66)
-npm run test:e2e      # browser              (22)
+npm run test          # unit + integration   (80)
+npm run test:e2e      # browser              (23)
 ```
 
 | Tier | Count | What it proves |
 |---|---|---|
-| **Unit** — `tests/unit` | 29 | `can()` and `canTransition()` over every role × action × ownership combination, plus fail-closed cases: no user, deactivated account, missing lead. Pure functions, 0.4s |
-| **Integration** — `tests/integration` | 37 | Real HTTP, real sessions, real database. Auth rules and both core flows end to end |
-| **Browser** — `tests/e2e` | 22 | A person can do the job, and the UI agrees with the API about who may do what. Includes three that sign each demo role in, so a broken login fails the run immediately |
+| **Unit** — `tests/unit` | 32 | `can()` and `canTransition()` over every role × action × ownership combination, plus fail-closed cases: no user, deactivated account, missing lead. Pure functions, 0.4s |
+| **Integration** — `tests/integration` | 48 | Real HTTP, real sessions, real database. Auth rules and both core flows end to end |
+| **Browser** — `tests/e2e` | 23 | A person can do the job, and the UI agrees with the API about who may do what. Includes three that sign each demo role in, so a broken login fails the run immediately |
 
 **Nothing is mocked in the integration tier**, deliberately. What is being verified is that the service layer *and* Row Level Security agree — a mocked database would only prove the service agrees with itself. It authenticates with `Authorization: Bearer`, the same path an external client takes, so the suite passing is itself evidence the API works outside a browser.
 
@@ -383,6 +387,7 @@ Create a Supabase project with **"Automatically expose new tables" OFF** and **"
 supabase/migrations/0001_schema.sql
 supabase/migrations/0002_functions.sql
 supabase/migrations/0003_rls.sql
+supabase/migrations/0004_member_status.sql
 ```
 
 `supabase/RUN-THIS-IN-SUPABASE.sql` is the three concatenated, if you would rather paste once.
@@ -441,7 +446,7 @@ The brief says assumptions are part of the test. These are mine.
 2. **Leads are never deleted.** Product judgement, not an omission: hard-deleting leads destroys the activity trail and the reporting built on it. Admins mark a lead `lost`. There is no endpoint, no policy and no grant for it.
 3. **Email + password auth**, so a reviewer can sign in without a mailbox. Magic links or OAuth would be the real choice.
 4. **No rate limiting**, so `429` is not documented. In-memory counters do not work across serverless instances; doing it properly needs Redis or a database-backed throttle. The public form does carry a honeypot.
-5. **Role management is out of scope.** Accounts come from the seed. A real implementation would need a guard preventing demotion of the last remaining admin.
+5. **Creating users and changing roles are out of scope.** Accounts come from the seed. Admins *can* remove and restore a member's access — `is_active` was already enforced everywhere and just needed a way to be set — but only for members, and never for themselves. With no way to change a role in-app, revoking an admin would be one-way, so it is refused.
 6. **Activity writes are best-effort.** A failed audit write is logged, not thrown — losing an audit row is bad, but failing a salesperson's status update because the audit write timed out is worse. Production would use a durable queue.
 7. **The seeded data is fictional.** No real company, contact or email address.
 8. **The demo password is published on purpose.** A reviewer needs to get in. It is not how real accounts would be provisioned.

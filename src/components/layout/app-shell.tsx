@@ -80,7 +80,8 @@ export function AppShell({
           </div>
         </main>
 
-        <SiteFooter />
+        {/* Already signed in — "Team sign in" would be nonsense here. */}
+        <SiteFooter showSignIn={false} />
       </div>
     </div>
   );

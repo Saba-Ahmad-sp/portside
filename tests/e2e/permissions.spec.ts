@@ -149,6 +149,31 @@ test.describe("isolation between members", () => {
   });
 });
 
+test.describe("footer", () => {
+  test.use({ storageState: STATE.admin });
+
+  test("keeps the attribution but drops the sign-in link once signed in", async ({
+    page,
+  }) => {
+    await page.goto("/leads");
+
+    const footer = page.locator("footer");
+
+    // The brief requires this on the live build, on every page — not just the
+    // marketing one. Worth a test rather than a habit.
+    await expect(
+      footer.getByRole("link", { name: "Built for Digital Heroes Training Task" }),
+    ).toBeVisible();
+    await expect(footer.getByRole("link", { name: "Built for Digital Heroes Training Task" })).toHaveAttribute(
+      "href",
+      "https://digitalheroesco.com",
+    );
+
+    // Offering "Team sign in" to someone already signed in is nonsense.
+    await expect(footer.getByRole("link", { name: "Team sign in" })).toHaveCount(0);
+  });
+});
+
 test.describe("mobile navigation drawer", () => {
   test.use({ storageState: STATE.admin, viewport: { width: 390, height: 780 } });
 

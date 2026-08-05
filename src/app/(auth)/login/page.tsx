@@ -153,7 +153,8 @@ export default async function LoginPage({
         </main>
       </div>
 
-      <SiteFooter />
+      {/* This is the sign-in page; linking to it from its own footer is noise. */}
+      <SiteFooter showSignIn={false} />
     </div>
   );
 }

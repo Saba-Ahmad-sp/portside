@@ -6,11 +6,20 @@ import Link from "next/link";
  * a footer that only exists on the marketing page is easy to miss.
  *
  * `tone` lets it sit on paper or on navy chrome without a second component.
+ *
+ * `showSignIn` is passed rather than derived from the session on purpose. The
+ * footer could read the session itself, but it renders on the landing page,
+ * which is statically prerendered — touching cookies there would make the whole
+ * page dynamic to hide one link. The two callers that already know the answer
+ * say so instead.
  */
 export function SiteFooter({
   tone = "paper",
+  showSignIn = true,
 }: {
   tone?: "paper" | "navy";
+  /** Off when already signed in, and on the sign-in page itself. */
+  showSignIn?: boolean;
 }) {
   const isNavy = tone === "navy";
 
@@ -42,14 +51,16 @@ export function SiteFooter({
           </a>
         </p>
 
-        <p className="font-mono">
-          <Link
-            href="/login"
-            className="underline-offset-4 transition-opacity hover:underline hover:opacity-80"
-          >
-            Team sign in
-          </Link>
-        </p>
+        {showSignIn && (
+          <p className="font-mono">
+            <Link
+              href="/login"
+              className="underline-offset-4 transition-opacity hover:underline hover:opacity-80"
+            >
+              Team sign in
+            </Link>
+          </p>
+        )}
       </div>
     </footer>
   );

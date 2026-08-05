@@ -42,7 +42,12 @@ describe("can() — admin", () => {
 });
 
 describe("can() — member", () => {
-  const ADMIN_ONLY: Action[] = ["lead:list:all", "lead:assign", "team:view"];
+  const ADMIN_ONLY: Action[] = [
+    "lead:list:all",
+    "lead:assign",
+    "team:view",
+    "team:setActive",
+  ];
 
   it.each(ADMIN_ONLY)("is refused %s", (action) => {
     expect(can(MEMBER, action, OWNED)).toBe(false);
@@ -107,6 +112,8 @@ describe("can() — the full truth table", () => {
     ["member assigns own lead", MEMBER, "lead:assign", OWNED, false],
     ["admin views team", ADMIN, "team:view", UNASSIGNED, true],
     ["member views team", MEMBER, "team:view", UNASSIGNED, false],
+    ["admin sets access", ADMIN, "team:setActive", UNASSIGNED, true],
+    ["member sets access", MEMBER, "team:setActive", UNASSIGNED, false],
     ["member views own", MEMBER, "lead:view", OWNED, true],
     ["member views other", MEMBER, "lead:view", SOMEONE_ELSES, false],
     ["member notes own", MEMBER, "lead:addNote", OWNED, true],

@@ -30,11 +30,13 @@ const UUID_PATTERN =
  */
 export async function routeId(
   params: Promise<{ id: string }>,
+  /** Named in the error, so a bad member id does not report itself as a lead. */
+  label = "lead",
 ): Promise<string> {
   const { id } = await params;
 
   if (!UUID_PATTERN.test(id)) {
-    throw ApiError.badRequest("The lead id must be a UUID.");
+    throw ApiError.badRequest(`The ${label} id must be a UUID.`);
   }
 
   return id;

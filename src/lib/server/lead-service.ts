@@ -105,6 +105,68 @@ export async function getMembers(session: Session): Promise<MemberDTO[]> {
   return repo.listMembers(session.db);
 }
 
+/**
+ * Deactivate or restore a colleague's access. Admin only.
+ *
+ * Three guards, in order of how badly each would hurt:
+ *
+ *  1. Not an admin -> 403. The directory is admin-only anyway, so they already
+ *     know the team exists; there is nothing left to hide.
+ *  2. Deactivating yourself -> 409. You would lose access mid-click and could
+ *     not undo it. An accident, not a decision.
+ *  3. Deactivating the last active admin -> 409. Nobody could restore anyone,
+ *     and the only way back would be editing the database by hand.
+ *
+ * All three are 4xx with an explanation rather than a silent no-op, because a
+ * control that appears to work and does nothing is worse than one that refuses.
+ */
+export async function setMemberActive(
+  session: Session,
+  memberId: string,
+  isActive: boolean,
+): Promise<MemberDTO> {
+  if (!can(session.user, "team:setActive")) {
+    throw ApiError.forbidden("Only admins can change who has access.");
+  }
+
+  const member = await repo.findMember(session.db, memberId);
+  if (!member) throw ApiError.notFound("No such user.");
+
+  if (member.isActive === isActive) {
+    return member; // Already in the requested state; nothing to record.
+  }
+
+  if (!isActive) {
+    if (member.id === session.user.id) {
+      throw ApiError.conflict(
+        "You cannot remove your own access — ask another admin to do it.",
+      );
+    }
+
+    if (member.role === "admin") {
+      // Only members' access is managed here. Since this build has no way to
+      // change someone's role, revoking an admin would be one-way from the
+      // app's point of view — and with role changes out of scope, an admin
+      // locking out every other admin is a failure mode with no in-app remedy.
+      throw ApiError.forbidden(
+        "Only members' access can be changed here. Admins keep access for as long as they are admins.",
+      );
+    }
+
+    // Unreachable while the rule above stands, and kept deliberately: if
+    // admin access ever becomes manageable, this is the guard that stops the
+    // organisation locking itself out entirely.
+    if ((await repo.countActiveAdmins(session.db)) < 1) {
+      throw ApiError.conflict("That would leave the desk with no active admin.");
+    }
+  }
+
+  const updated = await repo.setMemberActive(session.db, memberId, isActive);
+  if (!updated) throw ApiError.notFound("No such user.");
+
+  return updated;
+}
+
 /** The team, plus how many open leads each person is carrying. Admin only. */
 export async function getTeamWithWorkload(session: Session) {
   const members = await getMembers(session);
