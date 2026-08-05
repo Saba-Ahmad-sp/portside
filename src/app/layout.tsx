@@ -33,6 +33,17 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  /**
+   * Resolves relative metadata URLs against the deployed origin. Open Graph
+   * requires absolute URLs — a share card cannot resolve "/og.png" against
+   * nothing — and without this Next warns on every build.
+   *
+   * Falls back to the dev port rather than throwing: a missing site URL should
+   * degrade a link preview, not stop the app from starting.
+   */
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3100",
+  ),
   title: {
     default: "Portside — the lead desk for import sourcing teams",
     template: "%s · Portside",
@@ -44,6 +55,7 @@ export const metadata: Metadata = {
     description:
       "Capture, assign and work enquiries for imported riding gear and vehicle parts in one place, with a complete audit trail on every lead.",
     type: "website",
+    url: "/",
   },
 };
 

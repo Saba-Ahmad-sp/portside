@@ -7,7 +7,7 @@
 > Built for the Digital Heroes Qualification Task Kit — **Role 04, Full Stack Development, Task A**.
 > Task B is at [`docs/task-b-inherit-and-improve.md`](docs/task-b-inherit-and-improve.md).
 
-**Live:** _see the submission link_
+**Live:** https://portside-iota.vercel.app
 **Repo:** https://github.com/Saba-Ahmad-sp/portside
 
 ---
