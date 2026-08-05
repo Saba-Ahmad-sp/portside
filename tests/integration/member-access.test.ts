@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { ACCESS_REVOKED_MESSAGE } from "@/lib/permissions";
 import { callApi } from "./helpers";
 
 /**
@@ -190,5 +191,67 @@ describe("revoking and restoring", () => {
 
     expect(status).toBe(200);
     expect(body.data.isActive).toBe(true);
+  });
+});
+
+/**
+ * GET /api/session — the endpoint that lets the sign-in screen explain itself.
+ *
+ * Supabase Auth does not know what `is_active` is, so a deactivated colleague's
+ * password still works and still yields a valid token. Without something to ask,
+ * the app signed them in, bounced them out, and bounced them back in a loop.
+ *
+ * This is the only endpoint that separates 403 from 401 for a switched-off
+ * account. It can afford to: a 403 is unreachable without a valid session, so
+ * the distinction is drawn for someone who has already proved who they are.
+ */
+describe("GET /api/session", () => {
+  it("returns the caller's own identity", async () => {
+    const { status, body } = await callApi<{ data: Member & { email: string } }>(
+      "/api/session",
+      { as: "priya" },
+    );
+
+    expect(status).toBe(200);
+    expect(body.data.email).toBe("priya@portside.demo");
+    expect(body.data.role).toBe("member");
+    expect(body.data.isActive).toBe(true);
+  });
+
+  it("refuses an unauthenticated caller with 401", async () => {
+    const { status, body } = await callApi<{ error: { code: string } }>(
+      "/api/session",
+    );
+
+    expect(status).toBe(401);
+    expect(body.error.code).toBe("UNAUTHENTICATED");
+  });
+
+  it("tells a deactivated account why, while the rest of the API still says 401", async () => {
+    await callApi(`/api/members/${aisha.id}/access`, {
+      as: "admin",
+      method: "PATCH",
+      body: { isActive: false },
+    });
+
+    const { status, body } = await callApi<{
+      error: { code: string; message: string };
+    }>("/api/session", { as: "aisha" });
+
+    expect(status).toBe(403);
+    expect(body.error.code).toBe("FORBIDDEN");
+    // The exact wording the sign-in screen puts in the toast.
+    expect(body.error.message).toBe(ACCESS_REVOKED_MESSAGE);
+
+    // Everywhere else the two cases stay collapsed, so nothing is leaked to a
+    // caller who has not authenticated.
+    const { status: leads } = await callApi("/api/leads", { as: "aisha" });
+    expect(leads).toBe(401);
+
+    await callApi(`/api/members/${aisha.id}/access`, {
+      as: "admin",
+      method: "PATCH",
+      body: { isActive: true },
+    });
   });
 });

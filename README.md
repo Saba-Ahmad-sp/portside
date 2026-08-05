@@ -44,7 +44,7 @@ A second admin (`dev@portside.demo`) also exists in the seed. Two admins is deli
 | Notes with timestamps | Append-only, shown as relative + absolute time |
 | Activity trail | Written server-side on every change; no client can write to it |
 | JSON API with pagination, filtering, status codes | 11 endpoints, [documented below](#api) |
-| Automated tests | **103 tests** — 32 unit, 48 integration, 23 browser |
+| Automated tests | **106 tests** — 32 unit, 51 integration, 23 browser |
 | Deployment on a free tier | Vercel + Supabase |
 
 ---
@@ -349,14 +349,14 @@ curl -s -X POST "$BASE/api/public/leads" -H "Content-Type: application/json" \
 ## Tests
 
 ```bash
-npm run test          # unit + integration   (80)
+npm run test          # unit + integration   (83)
 npm run test:e2e      # browser              (23)
 ```
 
 | Tier | Count | What it proves |
 |---|---|---|
 | **Unit** — `tests/unit` | 32 | `can()` and `canTransition()` over every role × action × ownership combination, plus fail-closed cases: no user, deactivated account, missing lead. Pure functions, 0.4s |
-| **Integration** — `tests/integration` | 48 | Real HTTP, real sessions, real database. Auth rules and both core flows end to end |
+| **Integration** — `tests/integration` | 51 | Real HTTP, real sessions, real database. Auth rules and both core flows end to end |
 | **Browser** — `tests/e2e` | 23 | A person can do the job, and the UI agrees with the API about who may do what. Includes three that sign each demo role in, so a broken login fails the run immediately |
 
 **Nothing is mocked in the integration tier**, deliberately. What is being verified is that the service layer *and* Row Level Security agree — a mocked database would only prove the service agrees with itself. It authenticates with `Authorization: Bearer`, the same path an external client takes, so the suite passing is itself evidence the API works outside a browser.

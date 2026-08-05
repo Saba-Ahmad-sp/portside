@@ -93,9 +93,15 @@ export function toQueryString(params: Record<string, unknown>): string {
 }
 
 export const api = {
-  /** Unwraps to the payload. Use when there is no pagination envelope. */
-  async get<T>(path: string): Promise<T> {
-    return (await request<T>(path)).data;
+  /**
+   * Unwraps to the payload. Use when there is no pagination envelope.
+   *
+   * `init` exists for the one caller that cannot rely on the cookie: the
+   * sign-in form, checking a token Supabase handed it a moment ago that the
+   * browser may not have written yet.
+   */
+  async get<T>(path: string, init?: RequestInit): Promise<T> {
+    return (await request<T>(path, init)).data;
   },
 
   /** Keeps `meta`. Use for list endpoints. */

@@ -16,6 +16,18 @@
 
 export type Role = "admin" | "member";
 
+/**
+ * Shown to someone whose account exists and whose password is correct, but
+ * whose access has been switched off.
+ *
+ * Saying this much is safe precisely because they have already authenticated —
+ * we are not telling a stranger which addresses are real, we are telling a
+ * colleague why the door will not open. It lives here so the API and the
+ * sign-in screen cannot word it differently.
+ */
+export const ACCESS_REVOKED_MESSAGE =
+  "Your access to Portside has been turned off. Ask an administrator to restore it.";
+
 /** The smallest slice of a user needed to make a decision — safe to serialise to the browser. */
 export type PermissionUser = {
   id: string;

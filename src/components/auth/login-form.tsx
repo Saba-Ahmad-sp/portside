@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ApiClientError, api } from "@/lib/api/client";
 import { getBrowserSupabase } from "@/lib/supabase/client";
+import type { MemberDTO } from "@/lib/types";
 
 const signInSchema = z.object({
   email: z.email({ error: "Enter the email address you were given." }),
@@ -35,12 +38,35 @@ const DEMO_ACCOUNTS: Record<string, string> = {
 };
 
 /**
+ * Asks the server who we are.
+ *
+ * 200 — the account is live. 403 — it exists but access has been withdrawn.
+ * 401 — no session at all.
+ *
+ * Pass a token when the cookie may not have landed yet; otherwise the browser's
+ * own session is used.
+ */
+function readSession(accessToken?: string) {
+  return api.get<MemberDTO>(
+    "/api/session",
+    accessToken
+      ? { headers: { Authorization: `Bearer ${accessToken}` } }
+      : undefined,
+  );
+}
+
+/**
  * Sign-in.
  *
  * The one place the browser talks to Supabase directly — and only to Auth,
  * never to a table. Supabase sets the httpOnly session cookie, and from then on
  * every request for data goes through /api/*, where the DAL revalidates the
  * session and the service layer authorises the action.
+ *
+ * Note the extra step after a successful password check. Supabase Auth has no
+ * concept of `is_active` — that is our column, in our profiles table — so a
+ * deactivated colleague's password still works and still yields a valid
+ * session. Somebody has to notice, and it has to be us.
  */
 export function LoginForm() {
   const router = useRouter();
@@ -48,6 +74,54 @@ export function LoginForm() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const demoEmail = DEMO_ACCOUNTS[searchParams.get("demo") ?? ""];
+  const revoked = searchParams.get("revoked") === "1";
+
+  /**
+   * Turn away an authenticated-but-deactivated account.
+   *
+   * Signing out matters as much as the message: without it the browser keeps a
+   * live cookie for a dead account, and every visit to the app bounces back
+   * here. `scope: "local"` because this is about this browser, not about
+   * revoking the account's other sessions — that is an admin's decision.
+   */
+  const denyAccess = useCallback(async (message: string) => {
+    await getBrowserSupabase().auth.signOut({ scope: "local" });
+    setFormError(message);
+    toast.error("Access disabled", { description: message });
+  }, []);
+
+  /**
+   * Arriving with ?revoked=1 means a page turned us away mid-session — the
+   * admin switched this account off while it was signed in.
+   *
+   * The marker is not taken on trust: anyone can type it in the address bar,
+   * and signing out a perfectly valid user because they did would be its own
+   * bug. Ask the server, then act on the answer.
+   */
+  useEffect(() => {
+    if (!revoked) return;
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        await readSession();
+        // Access is fine after all — the marker was stale or invented.
+        if (!cancelled) router.replace("/leads");
+      } catch (error) {
+        if (cancelled) return;
+        if (error instanceof ApiClientError && error.isForbidden) {
+          await denyAccess(error.message);
+        } else {
+          // 401: already signed out, nothing to explain. Tidy the URL.
+          router.replace("/login");
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [revoked, router, denyAccess]);
 
   const {
     register,
@@ -67,7 +141,7 @@ export function LoginForm() {
   async function onSubmit(values: SignInValues) {
     setFormError(null);
 
-    const { error } = await getBrowserSupabase().auth.signInWithPassword({
+    const { data, error } = await getBrowserSupabase().auth.signInWithPassword({
       email: values.email,
       password: values.password,
     });
@@ -77,6 +151,24 @@ export function LoginForm() {
       // would let anyone enumerate who works here.
       setFormError("That email and password combination did not work.");
       return;
+    }
+
+    /*
+      The password was right. That is not the same as being allowed in.
+
+      Checked here rather than left to the app to discover, because the app
+      discovering it is a redirect the user watches happen for no stated
+      reason. Told at the door, it is an answer.
+    */
+    try {
+      await readSession(data.session?.access_token);
+    } catch (checkError) {
+      if (checkError instanceof ApiClientError && checkError.isForbidden) {
+        await denyAccess(checkError.message);
+        return;
+      }
+      // Anything else is a network hiccup, not a verdict. Carry on — the DAL
+      // re-checks on the page itself, so nothing gets in on our uncertainty.
     }
 
     // Send them where they were originally headed, if they were bounced here.

@@ -63,7 +63,21 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && AUTH_ROUTES.includes(pathname)) {
+  /**
+   * Signed in and asking for the sign-in page: send them to the app.
+   *
+   * Unless ?revoked=1, which is requireSessionOrRedirect() telling us this
+   * session belongs to a deactivated account. Auth still considers the token
+   * valid, so `user` is truthy and we would happily bounce them to /leads —
+   * where the DAL would bounce them straight back. Let this one through; the
+   * sign-in page clears the cookie and says why.
+   *
+   * The exemption grants nothing. It skips a convenience redirect, not a
+   * check — every page and route handler still verifies for itself.
+   */
+  const revoked = request.nextUrl.searchParams.get("revoked") === "1";
+
+  if (user && AUTH_ROUTES.includes(pathname) && !revoked) {
     const url = request.nextUrl.clone();
     url.pathname = "/leads";
     url.search = "";

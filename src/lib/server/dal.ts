@@ -122,8 +122,26 @@ export async function requireSession(): Promise<Session> {
  */
 export async function requireSessionOrRedirect(): Promise<Session> {
   const session = await getSession();
-  if (!session || !session.user.isActive) {
-    redirect("/login");
-  }
+
+  // Signed out entirely: straight to the sign-in screen.
+  if (!session) redirect("/login");
+
+  /**
+   * Authenticated, but the account has been switched off.
+   *
+   * Supabase Auth still regards the token as perfectly valid — `is_active` is
+   * a column in our profiles table, not something Auth knows about — so the
+   * browser is holding a live session cookie for an account that may do
+   * nothing at all.
+   *
+   * A bare redirect to /login would be sent straight back here by proxy.ts,
+   * which sees a signed-in user asking for the sign-in page and helpfully
+   * returns them to the app. Two correct rules, opposite directions, forever.
+   *
+   * The marker breaks the tie: proxy.ts lets this one land, and the sign-in
+   * page clears the dead cookie and explains why they are back.
+   */
+  if (!session.user.isActive) redirect("/login?revoked=1");
+
   return session;
 }
