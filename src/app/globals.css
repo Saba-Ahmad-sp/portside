@@ -289,6 +289,23 @@
     backdrop-filter: blur(24px);
   }
 
+  /*
+   * Strips the native number stepper. The arrows steal width from an already
+   * narrow field, and nobody nudges a lead's value by one rupee at a time —
+   * it is typed. `type="number"` is kept for the numeric keypad on mobile and
+   * for browser-level validation.
+   */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .no-spinner {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
   .app-canvas {
     background:
       linear-gradient(oklch(0.16 0.03 250 / 0.82), oklch(0.16 0.03 250 / 0.94)),

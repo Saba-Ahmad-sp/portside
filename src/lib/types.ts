@@ -21,7 +21,8 @@ export type ActivityType =
   | "assigned"
   | "unassigned"
   | "status_changed"
-  | "note_added";
+  | "note_added"
+  | "value_changed";
 
 /** A colleague, as shown in an assignee dropdown or the team page. */
 export type MemberDTO = {

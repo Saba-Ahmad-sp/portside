@@ -4,11 +4,12 @@ import { ArrowLeft, Mail, Phone } from "lucide-react";
 
 import { ActivityTimeline } from "@/components/leads/activity-timeline";
 import { AssigneeControl } from "@/components/leads/assignee-control";
+import { EstimatedValueField } from "@/components/leads/estimated-value-field";
 import { NotesPanel } from "@/components/leads/notes-panel";
 import { PipelineStepper } from "@/components/leads/pipeline-stepper";
 import { StatusBadge } from "@/components/leads/status-badge";
 import { ApiError } from "@/lib/api/responses";
-import { formatAbsolute, formatQuantity, formatValue } from "@/lib/format";
+import { formatAbsolute, formatQuantity } from "@/lib/format";
 import { can } from "@/lib/permissions";
 import { requireSessionOrRedirect } from "@/lib/server/dal";
 import {
@@ -142,11 +143,21 @@ export default async function LeadDetailPage({
             <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
               <Fact label="Product interest" value={lead.productInterest} wide />
               <Fact label="Quantity" value={formatQuantity(lead.quantity)} mono />
-              <Fact
-                label="Est. value"
-                value={formatValue(lead.estValueInr)}
-                mono
-              />
+              {/*
+                Set by the sales team, not the buyer — the capture form does
+                not ask for it. Editable by whoever owns the lead.
+              */}
+              <div>
+                <dt className="label-manifest">Est. value</dt>
+                <dd className="mt-1">
+                  <EstimatedValueField
+                    leadId={lead.id}
+                    value={lead.estValueInr}
+                    assignedTo={assignedTo}
+                    viewer={session.user}
+                  />
+                </dd>
+              </div>
               <Fact label="Source" value={SOURCE_LABELS[lead.source]} />
               <Fact
                 label="Received"

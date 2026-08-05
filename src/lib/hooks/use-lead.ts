@@ -98,6 +98,26 @@ function reportError(fallback: string) {
   };
 }
 
+/**
+ * Any lead field other than status or assignment — currently the estimated
+ * value. Kept separate from useUpdateStatus so the success message can be
+ * specific: "Moved to qualified" and "Value updated" are different events to
+ * the person who just did one of them.
+ */
+export function useUpdateLead(id: string) {
+  const invalidate = useLeadInvalidation(id);
+
+  return useMutation({
+    mutationFn: (patch: Partial<Pick<LeadDTO, "estValueInr">>) =>
+      api.patch<LeadDTO>(`/api/leads/${id}`, patch),
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Estimated value updated");
+    },
+    onError: reportError("Could not update this lead"),
+  });
+}
+
 export function useUpdateStatus(id: string) {
   const invalidate = useLeadInvalidation(id);
 

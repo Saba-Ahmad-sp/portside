@@ -257,18 +257,40 @@ export async function updateLead(
     );
   }
 
+  // Read the value before the write, so the trail can say what it changed from.
+  const before =
+    patch.estValueInr !== undefined
+      ? await repo.findLeadById(session.db, id)
+      : null;
+
   const updated = await repo.updateLead(session.db, id, toColumns(patch));
   if (!updated) throw ApiError.notFound("Lead not found.");
 
+  const entries = [];
+
   if (wantsStatusChange) {
-    await recordActivity({
+    entries.push({
       leadId: id,
       actorId: session.user.id,
-      type: "status_changed",
+      type: "status_changed" as const,
       fromValue: current.status,
       toValue: patch.status!,
     });
   }
+
+  // The estimated value is what the forecast is built on. A silent change to
+  // it would be the one meaningful edit the trail did not record.
+  if (before && before.estValueInr !== updated.estValueInr) {
+    entries.push({
+      leadId: id,
+      actorId: session.user.id,
+      type: "value_changed" as const,
+      fromValue: before.estValueInr === null ? null : String(before.estValueInr),
+      toValue: updated.estValueInr === null ? null : String(updated.estValueInr),
+    });
+  }
+
+  await recordActivities(entries);
 
   return updated;
 }

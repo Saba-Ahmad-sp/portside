@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import {
   FileText,
+  IndianRupee,
   MessageSquare,
   Sparkles,
   UserMinus,
@@ -11,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { useActivities } from "@/lib/hooks/use-lead";
-import { formatAbsolute, formatRelative } from "@/lib/format";
+import { formatAbsolute, formatRelative, formatValue } from "@/lib/format";
 import { STATUS_LABELS, type ActivityDTO, type LeadStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ const ICONS: Record<ActivityDTO["type"], LucideIcon> = {
   unassigned: UserMinus,
   status_changed: FileText,
   note_added: MessageSquare,
+  value_changed: IndianRupee,
 };
 
 /** Turns a row into a sentence. The one place activity copy is written. */
@@ -71,6 +73,33 @@ function describe(activity: ActivityDTO): React.ReactNode {
 
     case "note_added":
       return `${who} added a note`;
+
+    case "value_changed": {
+      const from = activity.fromValue === null ? null : Number(activity.fromValue);
+      const to = activity.toValue === null ? null : Number(activity.toValue);
+
+      if (from === null) {
+        return (
+          <>
+            {who} valued this at{" "}
+            <span className="text-brass">{formatValue(to)}</span>
+          </>
+        );
+      }
+
+      if (to === null) {
+        return `${who} cleared the estimated value`;
+      }
+
+      return (
+        <>
+          {who} changed the estimate from {formatValue(from)} to{" "}
+          <span className={to > from ? "text-status-won" : "text-status-lost"}>
+            {formatValue(to)}
+          </span>
+        </>
+      );
+    }
 
     default:
       return `${who} made a change`;
