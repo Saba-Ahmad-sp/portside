@@ -65,7 +65,9 @@ export function NotesPanel({
             rows={3}
             value={body}
             onChange={(event) => setBody(event.target.value)}
-            placeholder="Called the buyer, asked for pricing on a 3-month contract…"
+            // Keep the "Called the buyer" opening — an E2E test locates this
+            // field by it.
+            placeholder="Called the buyer, shared landed pricing and lead times for the helmet order…"
             aria-invalid={tooLong}
             className="resize-y bg-card text-sm"
           />

@@ -44,7 +44,7 @@ A second admin (`dev@portside.demo`) also exists in the seed. Two admins is deli
 | Notes with timestamps | Append-only, shown as relative + absolute time |
 | Activity trail | Written server-side on every change; no client can write to it |
 | JSON API with pagination, filtering, status codes | 10 endpoints, [documented below](#api) |
-| Automated tests | **80 tests** — 29 unit, 37 integration, 14 browser |
+| Automated tests | **88 tests** — 29 unit, 37 integration, 22 browser |
 | Deployment on a free tier | Vercel + Supabase |
 
 ---
@@ -346,14 +346,14 @@ curl -s -X POST "$BASE/api/public/leads" -H "Content-Type: application/json" \
 
 ```bash
 npm run test          # unit + integration   (66)
-npm run test:e2e      # browser              (14)
+npm run test:e2e      # browser              (22)
 ```
 
 | Tier | Count | What it proves |
 |---|---|---|
 | **Unit** — `tests/unit` | 29 | `can()` and `canTransition()` over every role × action × ownership combination, plus fail-closed cases: no user, deactivated account, missing lead. Pure functions, 0.4s |
 | **Integration** — `tests/integration` | 37 | Real HTTP, real sessions, real database. Auth rules and both core flows end to end |
-| **Browser** — `tests/e2e` | 14 | A person can do the job, and the UI agrees with the API about who may do what |
+| **Browser** — `tests/e2e` | 22 | A person can do the job, and the UI agrees with the API about who may do what. Includes three that sign each demo role in, so a broken login fails the run immediately |
 
 **Nothing is mocked in the integration tier**, deliberately. What is being verified is that the service layer *and* Row Level Security agree — a mocked database would only prove the service agrees with itself. It authenticates with `Authorization: Bearer`, the same path an external client takes, so the suite passing is itself evidence the API works outside a browser.
 
@@ -388,7 +388,7 @@ supabase/migrations/0003_rls.sql
 `supabase/RUN-THIS-IN-SUPABASE.sql` is the three concatenated, if you would rather paste once.
 
 ```bash
-npm run seed     # 5 users, 35 leads, 138 activities, 11 notes
+npm run seed     # 5 users, 30 leads, 119 activities, 9 notes
 npm run dev
 ```
 

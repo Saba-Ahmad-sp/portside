@@ -5,9 +5,16 @@
 **Brief received:** 24 July 2026 (evening) · **Target submit:** 26 July 2026
 **Repo:** public GitHub · **Deploy:** Vercel + Supabase (free tiers)
 
-> Portside is a lead desk for a B2B export–import trading firm. Enquiries arrive from a
-> public website form, land in a shared pipeline, get assigned to a salesperson, and carry a
-> complete, automatically-written history of everything that happened to them.
+> ⚠️ **This is the plan as written before building, kept as a record of the thinking.**
+> It is not the documentation. Where it disagrees with what shipped, the
+> [README](README.md) is the source of truth — most visibly, the product settled on an
+> India-based **import sourcing** desk (riding gear and vehicle parts) rather than the
+> export–import framing sketched below, and the schema landed in three migrations rather
+> than four.
+
+> Portside is a lead desk for a B2B trading firm. Enquiries arrive from a public website
+> form, land in a shared pipeline, get assigned to a salesperson, and carry a complete,
+> automatically-written history of everything that happened to them.
 
 ---
 
