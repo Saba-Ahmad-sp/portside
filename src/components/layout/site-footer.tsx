@@ -24,7 +24,7 @@ export function SiteFooter({
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-6 py-6 text-xs sm:flex-row sm:items-center sm:justify-between">
         <p className="font-mono uppercase tracking-[0.14em]">
-          Portside — lead desk for export teams
+          Portside — lead desk for import sourcing teams
         </p>
 
         <p>

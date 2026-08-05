@@ -1,6 +1,6 @@
 # Portside
 
-**A lead desk for a B2B export/import sales team.** Enquiries arrive from a public form, land in a shared pipeline, get assigned to a salesperson, and carry a complete, automatically-written record of everything that happened to them.
+**A lead desk for a B2B import sourcing team.** Retailers and workshops across India send enquiries for imported riding gear and vehicle parts; each one lands in a shared pipeline, gets assigned to a salesperson, and carries a complete, automatically-written record of everything that happened to it.
 
 [![CI](https://github.com/Saba-Ahmad-sp/portside/actions/workflows/ci.yml/badge.svg)](https://github.com/Saba-Ahmad-sp/portside/actions/workflows/ci.yml)
 

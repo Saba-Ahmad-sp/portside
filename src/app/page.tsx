@@ -7,19 +7,20 @@ import { Marquee } from "@/components/public/marquee";
 import { Reveal, RevealGroup, RevealItem } from "@/components/shared/reveal";
 
 export const metadata = {
-  title: "Portside — the lead desk for export teams",
+  title: "Portside — the lead desk for import sourcing teams",
 };
 
+/** Drawn from the kind of enquiry that actually lands on this desk. */
 const ROUTES = [
-  "Basmati rice · United Arab Emirates",
-  "Cotton yarn · Singapore",
-  "Turmeric · Poland",
-  "Darjeeling tea · Australia",
-  "Granite · Japan",
-  "Cardamom · United States",
-  "Jute packaging · Austria",
-  "Leather goods · Chile",
-  "Soybean meal · Vietnam",
+  "Motocross helmets · Kolkata",
+  "Dual-sport boots · Pune",
+  "LED headlamp assemblies · Chennai",
+  "Bluetooth helmet intercoms · Delhi",
+  "Wireless CarPlay units · Hyderabad",
+  "Riding jackets · Bengaluru",
+  "Dash cameras · Ahmedabad",
+  "Crash guards · Jaipur",
+  "Cabin air filters · Mumbai",
 ];
 
 const CAPABILITIES = [

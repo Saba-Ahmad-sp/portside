@@ -34,15 +34,15 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Portside — the lead desk for export teams",
+    default: "Portside — the lead desk for import sourcing teams",
     template: "%s · Portside",
   },
   description:
     "Portside turns website enquiries into a worked pipeline: one shared desk for capture, assignment, notes and a complete activity trail.",
   openGraph: {
-    title: "Portside — the lead desk for export teams",
+    title: "Portside — the lead desk for import sourcing teams",
     description:
-      "Capture, assign and work export enquiries in one place, with a complete audit trail on every lead.",
+      "Capture, assign and work enquiries for imported riding gear and vehicle parts in one place, with a complete audit trail on every lead.",
     type: "website",
   },
 };

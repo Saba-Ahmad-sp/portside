@@ -152,7 +152,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="label-manifest text-brass/90"
           >
-            Export &amp; import · trade enquiries
+            Imported riding gear · parts &amp; accessories
           </motion.p>
 
           <h1 className="mt-5 font-display text-[2.6rem] leading-[1.03] sm:text-6xl lg:text-[4.4rem]">
