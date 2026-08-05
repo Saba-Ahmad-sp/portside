@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ClipboardList,
   LayoutDashboard,
@@ -117,22 +118,40 @@ export function AppNav({
         <Menu className="size-5" aria-hidden />
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+      {/*
+        Portalled to <body>, and this is load-bearing rather than tidiness.
+
+        The drawer is rendered from inside <header className="sticky z-30">,
+        which creates its own stacking context. Any z-index used inside it is
+        resolved WITHIN that context, so `z-50` here could never rise above the
+        header's own z-30 globally — the main content, later in the DOM, simply
+        painted over it. The symptom looked like transparency; the panel's
+        background was fully opaque the whole time, it was just being covered.
+
+        No mounted guard is needed: `open` starts false, so this never runs
+        during SSR and document.body is always present by the time it does.
+      */}
+      {open && createPortal(
+        <div className="fixed inset-0 z-[100] lg:hidden">
           <button
             type="button"
             aria-label="Close navigation menu"
             onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            style={{ backgroundColor: "rgba(4, 8, 14, 0.78)" }}
+            className="absolute inset-0"
           />
           <nav
             aria-label="Mobile main"
             /*
-              Solid, not translucent. The sidebar token carries an alpha for
-              the glass effect on desktop, and reusing it here let the page
-              content read straight through the drawer.
+              Opaque background set inline, deliberately.
+              Every surface token in this theme carries an alpha for the
+              desktop glass effect, and a Tailwind arbitrary value did not hold
+              either — the page kept reading through the panel. An inline
+              background-color cannot be purged, cannot lose a cascade-layer
+              fight, and cannot inherit someone else's transparency.
             */
-            className="absolute inset-y-0 left-0 flex w-[min(19.5rem,88vw)] flex-col rounded-r-2xl border-y-0 border-l-0 border-sidebar-border/70 bg-[oklch(0.125_0.026_250)] p-5 text-sidebar-foreground shadow-2xl"
+            style={{ backgroundColor: "#0e1622" }}
+            className="absolute inset-y-0 left-0 flex w-[min(19.5rem,88vw)] flex-col rounded-r-2xl border-y-0 border-l-0 border-sidebar-border/70 p-5 text-sidebar-foreground shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-sidebar-border/70 pb-5">
               <Link
@@ -183,7 +202,8 @@ export function AppNav({
               </div>
             )}
           </nav>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

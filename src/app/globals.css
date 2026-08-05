@@ -295,6 +295,7 @@
       radial-gradient(circle at 75% 0%, oklch(0.42 0.095 190 / 0.15), transparent 34rem);
   }
 
+
   .glass-input {
     background: oklch(0.145 0.026 250 / 0.88) !important;
     border-color: oklch(0.55 0.04 245 / 0.42) !important;

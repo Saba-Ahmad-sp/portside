@@ -149,6 +149,56 @@ test.describe("isolation between members", () => {
   });
 });
 
+test.describe("mobile navigation drawer", () => {
+  test.use({ storageState: STATE.admin, viewport: { width: 390, height: 780 } });
+
+  test("escapes the header's stacking context and covers the page", async ({
+    page,
+  }) => {
+    await page.goto("/leads");
+    await page.getByRole("button", { name: /open navigation menu/i }).click();
+
+    const drawer = page.getByRole("navigation", { name: "Mobile main" });
+    await expect(drawer).toBeVisible();
+
+    const check = await page.evaluate(() => {
+      const nav = document.querySelector('nav[aria-label="Mobile main"]')!;
+      const box = nav.getBoundingClientRect();
+
+      return {
+        // Rendered under <body>, not inside <header>. The header is
+        // position:sticky with a z-index, which creates a stacking context —
+        // a drawer inside it can never paint above the page content, however
+        // high its own z-index. That looked exactly like transparency.
+        insideHeader: Boolean(nav.closest("header")),
+        // Whatever the browser hit-tests at the drawer's centre must be the
+        // drawer itself, not a table row behind it.
+        topmostIsDrawer: Boolean(
+          document
+            .elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)
+            ?.closest('nav[aria-label="Mobile main"]'),
+        ),
+        opaque: getComputedStyle(nav).backgroundColor,
+      };
+    });
+
+    expect(check.insideHeader, "drawer must be portalled out of the header").toBe(false);
+    expect(check.topmostIsDrawer, "page content must not paint over the drawer").toBe(true);
+    expect(check.opaque).not.toMatch(/rgba\(.*,\s*0?\.\d+\)/);
+  });
+
+  test("its links navigate and it closes", async ({ page }) => {
+    await page.goto("/leads");
+    await page.getByRole("button", { name: /open navigation menu/i }).click();
+
+    const drawer = page.getByRole("navigation", { name: "Mobile main" });
+    await drawer.getByRole("link", { name: "Team" }).click();
+
+    await expect(page.getByRole("heading", { name: "Team", level: 1 })).toBeVisible();
+    await expect(drawer).toBeHidden();
+  });
+});
+
 test.describe("signing out", () => {
   /**
    * Signs in fresh rather than reusing a saved session, and as the second
