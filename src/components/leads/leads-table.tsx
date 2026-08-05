@@ -44,14 +44,15 @@ export function LeadsTable({
     <div className="glass-card overflow-x-auto rounded-2xl border border-border">
       <table className="w-full min-w-[56rem] border-collapse text-sm">
         <caption className="sr-only">
-          Leads, with company, destination, product interest, estimated value,
+          Leads, with company, location, product interest, estimated value,
           pipeline status and owner.
         </caption>
 
         <thead>
           <tr className="border-b border-border">
             <Th className="w-[26%]">Company</Th>
-            <Th className="w-[14%]">Destination</Th>
+            {/* The buyer's own city — they are importing to India, not exporting from it. */}
+            <Th className="w-[14%]">Location</Th>
             <Th className="w-[22%]">Product interest</Th>
             <Th className="w-[10%] text-right">Value</Th>
             <Th className="w-[12%]">Status</Th>

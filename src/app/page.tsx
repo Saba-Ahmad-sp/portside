@@ -106,7 +106,7 @@ export default function LandingPage() {
                     id="enquiry-heading"
                     className="mt-4 font-display text-3xl leading-tight sm:text-4xl"
                   >
-                    Tell us what you need shipped.
+                    Tell us what you need sourced.
                   </h2>
                   <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
                     This form is the front door of the platform. What you send

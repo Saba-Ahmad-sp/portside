@@ -57,11 +57,11 @@ describe("Flow 1 — a visitor submits the public capture form", () => {
         body: {
           fullName: "Integration Test Buyer",
           email: "buyer@integration.test",
-          company: "Integration Test Trading Co",
-          country: "United Kingdom",
+          company: "Integration Test Motors",
+          country: "Bengaluru, India",
           message:
             "Automated test enquiry covering the public capture flow end to end.",
-          productInterest: "Basmati rice, 25kg bags",
+          productInterest: "ECE 22.06 full-face helmets",
           quantity: 1200,
         },
       },
@@ -94,8 +94,8 @@ describe("Flow 1 — a visitor submits the public capture form", () => {
         body: {
           fullName: "Crafted Payload",
           email: "crafted@integration.test",
-          company: "Crafted Payload Ltd",
-          country: "Germany",
+          company: "Crafted Payload Motors",
+          country: "Pune, India",
           message: "Attempting to create a lead that is already won and assigned.",
           // None of these should have any effect.
           status: "won",

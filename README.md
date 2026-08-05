@@ -332,9 +332,10 @@ curl -s "$BASE/api/leads/<id>/activities" -H "Authorization: Bearer $TOKEN"
 
 # Public capture — no auth
 curl -s -X POST "$BASE/api/public/leads" -H "Content-Type: application/json" \
-  -d '{"fullName":"Amara Okafor","email":"amara@westbridge.co.uk",
-       "company":"Westbridge Foods","country":"United Kingdom",
-       "message":"Sourcing basmati for a UK private label."}'
+  -d '{"fullName":"Arjun Mehta","email":"arjun@apexriders.in",
+       "company":"Apex Riders Bengaluru","country":"Bengaluru, India",
+       "productInterest":"ECE 22.06 full-face helmets",
+       "message":"Stocking for two stores. Need ECE-certified lids, sizes M to XXL."}'
 ```
 
 **Try the permission rules.** Get a token for `priya@portside.demo` and repeat the assignment call — `403`. Get one for `rahul@portside.demo` and request one of Priya's leads — `404`.
