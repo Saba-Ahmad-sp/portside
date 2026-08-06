@@ -1,7 +1,7 @@
 /**
  * Portside — HTTP response helpers.
  *
- * Eight route handlers share one envelope and one status-code vocabulary, so
+ * Every route handler shares one envelope and one status-code vocabulary, so
  * the contract in the README is guaranteed to match what the API actually
  * returns. Route handlers never construct a NextResponse by hand.
  *

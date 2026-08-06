@@ -43,7 +43,7 @@ A second admin (`dev@portside.demo`) also exists in the seed. Two admins is deli
 | Assignment to a user | `PATCH /api/leads/:id/assignment`, admin only |
 | Notes with timestamps | Append-only, shown as relative + absolute time |
 | Activity trail | Written server-side on every change; no client can write to it |
-| JSON API with pagination, filtering, status codes | 11 endpoints, [documented below](#api) |
+| JSON API with pagination, filtering, status codes | 12 endpoints, [documented below](#api) |
 | Automated tests | **106 tests** — 32 unit, 51 integration, 23 browser |
 | Deployment on a free tier | Vercel + Supabase |
 
@@ -258,6 +258,7 @@ A `422` additionally carries `error.fields`, a `field → messages` map ready to
 | `POST` | `/api/leads/:id/notes` | required | `201` | `400` `401` `403` `404` `422` |
 | `GET` | `/api/leads/:id/activities` | required | `200` | `400` `401` `404` |
 | `PATCH` | `/api/leads/:id/assignment` | **admin** | `200` | `400` `401` `403` `404` `422` |
+| `GET` | `/api/session` | required | `200` | `401` `403` |
 | `GET` | `/api/members` | **admin** | `200` | `401` `403` |
 | `PATCH` | `/api/members/:id/access` | **admin** | `200` | `400` `401` `403` `404` `409` `422` |
 | `GET` | `/api/health` | public | `200` | `503` |
