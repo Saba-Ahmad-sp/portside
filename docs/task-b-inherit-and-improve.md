@@ -5,11 +5,9 @@ Saba Ahmad · July 2026
 
 ---
 
-> **The brief.** You are handed a working but poorly built codebase with no tests, business logic inside route handlers, direct database calls from the frontend, and secrets in the repo. It serves real customers and cannot go down.
-
 Two things shape everything below.
 
-**"Cannot go down" is the binding constraint, not "poorly built."** Plenty of ugly code makes money. The job is not to make this codebase pretty; it is to stop it hurting anyone while it keeps earning. Every step here has to be shippable on a Tuesday afternoon without a maintenance window.
+**"Cannot go down" is the binding constraint, not "poorly built."** Plenty of ugly code makes money. The job is not to make this codebase pretty; it is to stop it hurting anyone while it keeps earning. Every step here has to be shippable on an ordinary working day, without a maintenance window.
 
 **"No tests" is why this is hard.** Without tests, every improvement is also a risk. So the first real engineering move is not fixing the bad code — it is building the ability to change code safely. Until that exists, the correct amount of refactoring is zero.
 
